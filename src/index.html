@@ -103,8 +103,8 @@
         }
     }
 
-    function markGroup(i, j) {
-        if (typeof markGroup.groupSize == 'undefined') {
+    function markGroup(i, j, context) {
+        if (typeof context == 'undefined') {
             markGroup.groupSize = 0;
         }
 
@@ -115,28 +115,28 @@
         if (i>0) {
             if (fields[i-1][j]==refColor) {
                 markGroup.groupSize++;
-                markGroup(i-1, j);
+                markGroup(i-1, j, true);
             }
         }
 
         if (i<11) {
             if (fields[i+1][j]==refColor) {
                 markGroup.groupSize++;
-                markGroup(i+1, j);
+                markGroup(i+1, j, true);
             }
         }
 
         if (j>0) {
             if (fields[i][j-1]==refColor) {
                 markGroup.groupSize++;
-                markGroup(i, j-1);
+                markGroup(i, j-1, true);
             }
         }
 
         if (j<11) {
             if (fields[i][j+1]==refColor) {
                 markGroup.groupSize++;
-                markGroup(i, j+1);
+                markGroup(i, j+1, true);
             }
         }
 
