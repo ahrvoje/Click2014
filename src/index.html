@@ -303,10 +303,11 @@
         startButton.removeEventListener('mousedown', startGame, false);
     }
 
-    function onClick(event)
+    function processClick(event)
     {
         if (!gameFinished) {
             var mousePos = getMousePos(event);
+
             var fieldState = fields[mousePos.x][mousePos.y];
 
             if (fieldState > 0 && fieldState < 6) {
@@ -333,6 +334,10 @@
                 enableStartButton();
             }
         }
+    }
+
+    function onClick(event) {
+        setTimeout(function() {processClick(event)}, 50);
     }
 
     function startGame() {
