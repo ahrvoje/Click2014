@@ -84,6 +84,7 @@
     var timeText = document.getElementById('timeValue');
     var scoreText = document.getElementById('scoreValue');
     var startButton = document.getElementById('startButton');
+    var minDoubleClickTime = 5, lastClickTime;
     var highScores = [['',''], ['',''], ['',''], ['',''], ['',''], ['','']];
 
     var fields, startTime, updateTimerTimeout, gameFinished;
@@ -337,7 +338,13 @@
     }
 
     function onClick(event) {
-        setTimeout(function() {processClick(event)}, 50);
+        var currentTime = (new Date()).getTime();
+
+        if (currentTime - lastClickTime > minDoubleClickTime) {
+            processClick(event);
+        }
+
+        lastClickTime = currentTime;
     }
 
     function startGame() {
@@ -347,7 +354,7 @@
         drawAllFields();
         disableStartButton();
 
-        startTime = (new Date()).getTime();
+        lastClickTime = startTime = (new Date()).getTime();
         updateTimer();
         scoreText.textContent = getGameScore();
     }
