@@ -266,9 +266,12 @@
     }
 
     function updateTimer() {
-        var currentTime = ((new Date()).getTime() - startTime) / 1000;
-        timeText.textContent = currentTime;
-        return currentTime;
+        // just for case
+        if (!gameFinished) {
+            var currentTime = ((new Date()).getTime() - startTime) / 1000;
+            timeText.textContent = currentTime;
+            return currentTime;
+        }
     }
 
     function updateScore() {
@@ -309,7 +312,7 @@
             var mousePos = getMousePos(event);
             var fieldState = fields[mousePos.x][mousePos.y];
 
-            if (fieldState > 0 && fieldState < 6) {
+            if (fieldState>0 && fieldState<6) {
                 // if group is larger than a single field
                 if (markGroup(mousePos.x, mousePos.y) > 1) {
                     collapseGroup();
@@ -321,11 +324,10 @@
             }
 
             if (isGameOver()) {
-                gameFinished = true;
                 clearInterval(updateTimerInterval);
-
                 appendHighScores([updateTimer(), updateScore()]);
                 enableStartButton();
+                gameFinished = true;
             }
         }
     }
