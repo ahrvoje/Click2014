@@ -6,6 +6,10 @@
         body {
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: lightgrey;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -khtml-user-select: none;
@@ -13,65 +17,111 @@
             -ms-user-select: none;
             user-select: none;
         }
-
         body:hover {cursor: default}
+
+        #mainDiv {
+            width: 310px;
+            height: 500px;
+            padding-top: 10px;
+            font-family: Arial,serif;
+            font-weight: bold;
+        }
+
+        #clickCanvas {
+            background-color: black;
+        }
+
+        #startButtonDiv {
+            height: 30px;
+        }
+
+        #startButton {
+            text-align: center;
+            line-height: 30px;
+            vertical-align: middle;
+            border-radius: 5px;
+            background-color: limegreen;
+        }
+
+        .rowDiv {
+            display: flex;
+            line-height: 30px;
+            vertical-align: middle;
+        }
+
+        .leftDiv {
+            width: 80px;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .rightDiv {
+            width: 65px;
+            margin-left: auto;
+            text-align: left;
+        }
+
+        #highScores {
+            height: 180px;
+            color: grey;
+            border-top: 1px dotted;
+        }
     </style>
     <link rel="icon" type="image/png" href="./Click2014.png" />
     <title>Click2014</title>
 </head>
-<body style="display: flex; justify-content: center; align-items: center; background-color: lightgray">
+<body>
 
-<div style="width: 310px; height: 500px; padding-top: 10px; font-family: Arial; font-weight: bold">
-    <canvas id="clickCanvas" width="310" height="310" style="background-color: black"></canvas>
+<div id="mainDiv">
+    <canvas id="clickCanvas" width="310px" height="310px"></canvas>
 
-    <div id="startButtonDiv" style="height: 30px">
-        <div id="startButton" style="text-align: center; line-height: 30px; vertical-align: middle;
-         border-radius: 5px; background-color: limegreen">START</div>
+    <div id="startButtonDiv">
+        <div id="startButton">START</div>
     </div>
 
-    <div style="display: flex; line-height: 30px; vertical-align: middle">
-        <div id="timeText" style="width: 80px; margin-left: auto; text-align: right">Time:</div>
-        <div id="timeValue" style="width: 65px; margin-left: auto; text-align: left"></div>
-        <div id="scoreText" style="width: 80px; margin-left: auto; text-align: right">Score:</div>
-        <div id="scoreValue" style="width: 65px; margin-left: auto; text-align: left"></div>
+    <div class="rowDiv">
+        <div class="leftDiv" id="timeText">Time:</div>
+        <div class="rightDiv" id="timeValue"></div>
+        <div class="leftDiv" id="scoreText">Score:</div>
+        <div class="rightDiv" id="scoreValue"></div>
     </div>
 
-    <div id="highScores" style="height: 180px; color: grey; border-top-width: 1px; border-top-style: dotted">
-        <div style="display: flex; line-height: 30px; vertical-align: middle">
-            <div id="timeText1" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="timeValue1" style="width: 65px; margin-left: auto; text-align: left"></div>
-            <div id="scoreText1" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="scoreValue1" style="width: 65px; margin-left: auto; text-align: left"></div>
+    <div id="highScores">
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText1"></div>
+            <div class="rightDiv" id="timeValue1"></div>
+            <div class="leftDiv" id="scoreText1"></div>
+            <div class="rightDiv" id="scoreValue1"></div>
         </div>
-        <div style="display: flex; line-height: 30px; vertical-align: middle">
-            <div id="timeText2" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="timeValue2" style="width: 65px; margin-left: auto; text-align: left"></div>
-            <div id="scoreText2" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="scoreValue2" style="width: 65px; margin-left: auto; text-align: left"></div>
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText2"></div>
+            <div class="rightDiv" id="timeValue2"></div>
+            <div class="leftDiv" id="scoreText2"></div>
+            <div class="rightDiv" id="scoreValue2"></div>
         </div>
-        <div style="display: flex; line-height: 30px; vertical-align: middle">
-            <div id="timeText3" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="timeValue3" style="width: 65px; margin-left: auto; text-align: left"></div>
-            <div id="scoreText3" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="scoreValue3" style="width: 65px; margin-left: auto; text-align: left"></div>
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText3"></div>
+            <div class="rightDiv" id="timeValue3"></div>
+            <div class="leftDiv" id="scoreText3"></div>
+            <div class="rightDiv" id="scoreValue3"></div>
         </div>
-        <div style="display: flex; line-height: 30px; vertical-align: middle">
-            <div id="timeText4" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="timeValue4" style="width: 65px; margin-left: auto; text-align: left"></div>
-            <div id="scoreText4" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="scoreValue4" style="width: 65px; margin-left: auto; text-align: left"></div>
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText4"></div>
+            <div class="rightDiv" id="timeValue4"></div>
+            <div class="leftDiv" id="scoreText4"></div>
+            <div class="rightDiv" id="scoreValue4"></div>
         </div>
-        <div style="display: flex; line-height: 30px; vertical-align: middle">
-            <div id="timeText5" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="timeValue5" style="width: 65px; margin-left: auto; text-align: left"></div>
-            <div id="scoreText5" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="scoreValue5" style="width: 65px; margin-left: auto; text-align: left"></div>
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText5"></div>
+            <div class="rightDiv" id="timeValue5"></div>
+            <div class="leftDiv" id="scoreText5"></div>
+            <div class="rightDiv" id="scoreValue5"></div>
         </div>
-        <div style="display: flex; line-height: 30px; vertical-align: middle">
-            <div id="timeText6" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="timeValue6" style="width: 65px; margin-left: auto; text-align: left"></div>
-            <div id="scoreText6" style="width: 80px; margin-left: auto; text-align: right"></div>
-            <div id="scoreValue6" style="width: 65px; margin-left: auto; text-align: left"></div>
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText6"></div>
+            <div class="rightDiv" id="timeValue6"></div>
+            <div class="leftDiv" id="scoreText6"></div>
+            <div class="rightDiv" id="scoreValue6"></div>
         </div>
     </div>
 </div>
