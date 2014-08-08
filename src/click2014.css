@@ -19,14 +19,13 @@ body {
 body:hover {cursor: default}
 
 #mainDiv {
+    width: 310px;
     padding-top: 10px;
     font-family: Arial,serif;
     font-weight: bold;
 }
 
 #clickCanvas {
-    padding-bottom: 0px;
-    margin-bottom: 0px;
     background-color: black;
 }
 
@@ -36,9 +35,6 @@ body:hover {cursor: default}
 }
 
 #startButton {
-    margin-top: 0px;
-    border-top-width: 0px;
-    padding-top: 0px;
     text-align: center;
     line-height: 30px;
     vertical-align: middle;
