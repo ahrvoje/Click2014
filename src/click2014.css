@@ -1,0 +1,71 @@
+/*
+    Author: Hrvoje Abraham
+    Email: ahrvoje@gmail.com
+    Date: 08.08.2014.
+*/
+
+body {
+    width: 310px;
+    margin: 0 auto;
+    background-color: lightgrey;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+body:hover {cursor: default}
+
+#mainDiv {
+    padding-top: 10px;
+    font-family: Arial,serif;
+    font-weight: bold;
+}
+
+#clickCanvas {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+    background-color: black;
+}
+
+#startButtonDiv {
+    margin-top: 5px;
+    height: 30px;
+}
+
+#startButton {
+    margin-top: 0px;
+    border-top-width: 0px;
+    padding-top: 0px;
+    text-align: center;
+    line-height: 30px;
+    vertical-align: middle;
+    border-radius: 5px;
+    background-color: limegreen;
+}
+
+.rowDiv {
+    line-height: 30px;
+    vertical-align: middle;
+}
+
+.leftDiv {
+    width: 80px;
+    text-align: right;
+    display: inline-block;
+}
+
+.rightDiv {
+    margin-left: 10px;
+    width: 55px;
+    text-align: left;
+    display: inline-block;
+}
+
+#highScores {
+    height: 180px;
+    color: grey;
+    border-top: 1px dotted;
+}

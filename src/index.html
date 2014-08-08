@@ -1,93 +1,27 @@
-<!DOCTYPE html>
-
 <!--
     Author: Hrvoje Abraham
     Email: ahrvoje@gmail.com
     Date: 07.08.2014.
 -->
 
+<!DOCTYPE html>
 <html>
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="author" content="Hrvoje Abraham">
     <meta name="date" content="2014-08-07">
-
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: lightgrey;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        body:hover {cursor: default}
-
-        #mainDiv {
-            width: 310px;
-            height: 500px;
-            padding-top: 10px;
-            font-family: Arial,serif;
-            font-weight: bold;
-        }
-
-        #clickCanvas {
-            background-color: black;
-        }
-
-        #startButtonDiv {
-            height: 30px;
-        }
-
-        #startButton {
-            text-align: center;
-            line-height: 30px;
-            vertical-align: middle;
-            border-radius: 5px;
-            background-color: limegreen;
-        }
-
-        .rowDiv {
-            display: flex;
-            line-height: 30px;
-            vertical-align: middle;
-        }
-
-        .leftDiv {
-            width: 80px;
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .rightDiv {
-            width: 65px;
-            margin-left: auto;
-            text-align: left;
-        }
-
-        #highScores {
-            height: 180px;
-            color: grey;
-            border-top: 1px dotted;
-        }
-    </style>
-    <link rel="icon" type="image/png" href="./Click2014.png" />
     <title>Click2014</title>
+
+    <link rel="stylesheet" type="text/css" href="click2014.css" />
+    <script src="click2014.js"></script>
+    <link rel="icon" type="image/png" href="Click2014.png" />
 </head>
 <body>
 
 <div id="mainDiv">
-    <canvas id="clickCanvas" width="310px" height="310px"></canvas>
+    <canvas id="clickCanvas" width="310px" height="310px" onmousedown="onClick(event)"></canvas>
 
-    <div id="startButtonDiv">
-        <div id="startButton">START</div>
-    </div>
+    <div id="startButtonDiv"><div id="startButton" onclick="startGame()">START</div></div>
 
     <div class="rowDiv">
         <div class="leftDiv" id="timeText">Time:</div><div class="rightDiv" id="timeValue"></div>
@@ -95,6 +29,10 @@
     </div>
 
     <div id="highScores">
+        <div class="rowDiv">
+            <div class="leftDiv" id="timeText0"></div><div class="rightDiv" id="timeValue0"></div>
+            <div class="leftDiv" id="scoreText0"></div><div class="rightDiv" id="scoreValue0"></div>
+        </div>
         <div class="rowDiv">
             <div class="leftDiv" id="timeText1"></div><div class="rightDiv" id="timeValue1"></div>
             <div class="leftDiv" id="scoreText1"></div><div class="rightDiv" id="scoreValue1"></div>
@@ -115,302 +53,7 @@
             <div class="leftDiv" id="timeText5"></div><div class="rightDiv" id="timeValue5"></div>
             <div class="leftDiv" id="scoreText5"></div><div class="rightDiv" id="scoreValue5"></div>
         </div>
-        <div class="rowDiv">
-            <div class="leftDiv" id="timeText6"></div><div class="rightDiv" id="timeValue6"></div>
-            <div class="leftDiv" id="scoreText6"></div><div class="rightDiv" id="scoreValue6"></div>
-        </div>
     </div>
 </div>
-
-<script type="text/javascript">
-    var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
-
-    var canvas = document.getElementById('clickCanvas');
-    var context = canvas.getContext('2d');
-    context.strokeStyle = '#000000';
-    context.lineWidth = 4;
-
-    var timeText = document.getElementById('timeValue');
-    var scoreText = document.getElementById('scoreValue');
-    var startButton = document.getElementById('startButton');
-
-    var minDoubleClickTime = 5, lastClickTime;
-    var fields, startTime, updateTimerInterval, gameFinished;
-    var highScores = [['',''], ['',''], ['',''], ['',''], ['',''], ['','']];
-
-    function initFields() {
-        fields = [];
-        for (var i=0; i<12; i++) {
-            var x=[];
-
-            for (var j=0; j<12; j++) {
-                x.push(Math.floor(Math.random()*5)+1);
-            }
-
-            fields.push(x);
-        }
-    }
-
-    function markGroup(i, j, context) {
-        if (typeof context == 'undefined') {
-            // if field is empty
-            if (fields[i][j] == 0) {
-                return 0;
-            }
-
-            markGroup.groupSize = 1;
-        }
-
-        var refColor = fields[i][j];
-
-        fields[i][j] = 6;
-
-        if (i>0) {
-            if (fields[i-1][j] == refColor) {
-                markGroup.groupSize++;
-                markGroup(i-1, j, true);
-            }
-        }
-
-        if (i<11) {
-            if (fields[i+1][j] == refColor) {
-                markGroup.groupSize++;
-                markGroup(i+1, j, true);
-            }
-        }
-
-        if (j>0) {
-            if (fields[i][j-1] == refColor) {
-                markGroup.groupSize++;
-                markGroup(i, j-1, true);
-            }
-        }
-
-        if (j<11) {
-            if (fields[i][j+1] == refColor) {
-                markGroup.groupSize++;
-                markGroup(i, j+1, true);
-            }
-        }
-
-        return markGroup.groupSize;
-    }
-
-    function collapseDown() {
-        for (var i=0; i<12; i++) {
-            var row = 0;
-            for (var j=0; j<12; j++) {
-                var fieldState = fields[i][j];
-
-                if (fieldState>0 && fieldState<6) {
-                    fields[i][j] = 0;
-                    fields[i][row] = fieldState;
-                    row++;
-                } else {
-                    fields[i][j] = 0;
-                }
-            }
-        }
-    }
-
-    function collapseLeft() {
-        // scan all columns excepts the last
-        for (var i=0; i<11; i++) {
-            if (fields[i][0] == 0) {
-                // find first non-empty column
-                for (var col=i+1; col<12; col++) {
-                    if (fields[col][0] > 0)
-                        break;
-                }
-
-                // if it is not the last column
-                // copy it to the empty column and make it empty
-                if (col < 12) {
-                    for (var j=0; j<12; j++) {
-                        var fieldState = fields[col][j];
-
-                        if (fieldState == 0) {
-                            break;
-                        } else {
-                            fields[i][j] = fieldState;
-                            fields[col][j] = 0;
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-
-    function collapseGroup() {
-        collapseDown();
-        collapseLeft();
-    }
-
-    function getGameScore() {
-        var score = 0;
-
-        for (var i=0; i<12; i++) {
-            // stop counting if you came to an empty part
-            if (fields[i][0] == 0) {
-                break;
-            }
-
-            for (var j=0; j<12; j++) {
-                if (fields[i][j] > 0) {
-                    score++;
-                } else {
-                    break;
-                }
-            }
-        }
-
-        return score;
-    }
-
-    function isGameOver() {
-        for (var i=0; i<11; i++) {
-            // stop scanning if you came to an empty part
-            if (fields[i][0] == 0) {
-                break;
-            }
-
-            for (var j=0; j<11; j++) {
-                var fieldState = fields[i][j];
-
-                if (fieldState > 0) {
-                    if (fields[i+1][j] == fieldState) {
-                        return false;
-                    }
-
-                    if (fields[i][j+1] == fieldState) {
-                        return false;
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    function drawField(i, j, color) {
-        context.beginPath();
-        context.rect(25*i+5, 300-25*(j+1)+5, 25, 25);
-        context.stroke();
-
-        context.fillStyle = color;
-        context.fill();
-    }
-
-    function drawAllFields() {
-        for (var i=0; i<12; i++) {
-            for (var j=0; j<12; j++) {
-                drawField(i, j, colors[fields[i][j]]);
-            }
-        }
-    }
-
-    function updateTimer() {
-        // just for case
-        if (!gameFinished) {
-            var currentTime = ((new Date()).getTime() - startTime) / 1000;
-            timeText.textContent = currentTime;
-            return currentTime;
-        }
-    }
-
-    function updateScore() {
-        var currentScore = getGameScore();
-        scoreText.textContent = currentScore;
-        return currentScore;
-    }
-
-    function appendHighScores(highScore) {
-        highScores.unshift(highScore);
-        highScores.pop();
-
-        for (var i=1; i<=6; i++) {
-            document.getElementById('timeValue'+i).textContent = highScores[i-1][0];
-            document.getElementById('scoreValue'+i).textContent = highScores[i-1][1];
-        }
-    }
-
-    function getMousePos(event) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-            x: Math.floor((event.clientX - rect.left - 5) / 25),
-            y: 11 - Math.floor((event.clientY - rect.top - 5) / 25)
-        };
-    }
-
-    function enableStartButton() {
-        startButton.style.display = 'inherit';
-    }
-
-    function disableStartButton() {
-        startButton.style.display = 'none';
-    }
-
-    function processClick(event)
-    {
-        if (!gameFinished) {
-            var mousePos = getMousePos(event);
-            var fieldState = fields[mousePos.x][mousePos.y];
-
-            if (fieldState>0 && fieldState<6) {
-                // if group is larger than a single field
-                if (markGroup(mousePos.x, mousePos.y) > 1) {
-                    collapseGroup();
-                    drawAllFields();
-                    updateScore();
-                } else {
-                    fields[mousePos.x][mousePos.y] = fieldState;
-                }
-            }
-
-            if (isGameOver()) {
-                clearInterval(updateTimerInterval);
-                appendHighScores([updateTimer(), updateScore()]);
-                enableStartButton();
-                gameFinished = true;
-            }
-        }
-    }
-
-    function onClick(event) {
-        var currentTime = (new Date()).getTime();
-
-        if (currentTime - lastClickTime > minDoubleClickTime) {
-            processClick(event);
-        }
-
-        lastClickTime = currentTime;
-    }
-
-    function startGame() {
-        gameFinished = false;
-
-        initFields();
-        drawAllFields();
-        disableStartButton();
-
-        lastClickTime = startTime = (new Date()).getTime();
-        updateTimerInterval = setInterval(updateTimer, 67);
-        updateScore();
-    }
-
-    function initGame() {
-        gameFinished = true;
-        canvas.addEventListener('mousedown', onClick, false);
-        startButton.addEventListener('mousedown', startGame, false);
-        enableStartButton();
-    }
-
-    initGame();
-</script>
-
 </body>
 </html>
