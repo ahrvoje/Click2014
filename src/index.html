@@ -124,15 +124,19 @@
 
 <script type="text/javascript">
     var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
+
     var canvas = document.getElementById('clickCanvas');
     var context = canvas.getContext('2d');
+    context.strokeStyle = '#000000';
+    context.lineWidth = 4;
+
     var timeText = document.getElementById('timeValue');
     var scoreText = document.getElementById('scoreValue');
     var startButton = document.getElementById('startButton');
-    var minDoubleClickTime = 5, lastClickTime;
-    var highScores = [['',''], ['',''], ['',''], ['',''], ['',''], ['','']];
 
+    var minDoubleClickTime = 5, lastClickTime;
     var fields, startTime, updateTimerInterval, gameFinished;
+    var highScores = [['',''], ['',''], ['',''], ['',''], ['',''], ['','']];
 
     function initFields() {
         fields = [];
@@ -293,8 +297,6 @@
     }
 
     function drawField(i, j, color) {
-        context.strokeStyle = '#000000';
-        context.lineWidth = 4;
         context.beginPath();
         context.rect(25*i+5, 300-25*(j+1)+5, 25, 25);
         context.stroke();
