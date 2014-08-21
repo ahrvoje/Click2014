@@ -7,7 +7,7 @@
 body {
     width: 310px;
     margin: 0 auto;
-    background-color: lightgrey;
+    background-color: rgb(227, 239, 255);
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -37,17 +37,18 @@ body:hover {cursor: default}
     text-align: center;
     line-height: 30px;
     vertical-align: middle;
-    border-radius: 5px;
-    background-color: limegreen;
+    border-radius: 15px;
+    background-color: #ff5100;
+    color: rgb(227, 239, 255);
 }
 
 .rowDiv {
-    line-height: 30px;
+    line-height: 35px;
     vertical-align: middle;
 }
 
 .leftDiv {
-    width: 80px;
+    width: 70px;
     text-align: right;
     display: inline-block;
 }
@@ -57,6 +58,18 @@ body:hover {cursor: default}
     width: 55px;
     text-align: left;
     display: inline-block;
+}
+
+.replayDiv, .replayButtonDiv {
+    width: 26px;
+    line-height: 26px;
+    border-radius: 13px;
+    display: inline-block;
+}
+
+.replayButtonDiv {
+    background-color: #ff5100;
+    text-align: center;
 }
 
 #highScores {

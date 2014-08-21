@@ -6,20 +6,20 @@
 
 var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
 var highScores = [['',''], ['',''], ['',''], ['',''], ['',''], ['','']];
-var minDoubleClickTime = 5, lastClickTime;
-var fields, startTime, updateTimerInterval, gameActive;
+var startPosition = [];
+var fields, startTime, updateTimerInterval, gameActive, lastClickTime;
 
-function initFields() {
+function generateStartPosition() {
     var x;
 
-    fields = [];
+    startPosition = [];
     for (var i=0; i<12; i++) {
         x=[];
         for (var j=0; j<12; j++) {
             x.push(Math.floor(Math.random()*5)+1);
         }
 
-        fields.push(x);
+        startPosition.push(x);
     }
 }
 
@@ -147,22 +147,27 @@ function getGameScore() {
 function isGameOver() {
     var fieldState;
 
-    for (var i=0; i<11; i++) {
+    // try to find at least two connected fields of the same color
+    for (var i=0; i<12; i++) {
         // stop scanning if you came to an empty part
         if (fields[i][0] == 0) {
-            break;
+            return true;
         }
 
-        for (var j=0; j<11; j++) {
+        for (var j=0; j<12; j++) {
             fieldState = fields[i][j];
 
             if (fieldState > 0) {
-                if (fields[i+1][j] == fieldState) {
-                    return false;
+                if (i < 11) {
+                    if (fields[i + 1][j] == fieldState) {
+                        return false;
+                    }
                 }
 
-                if (fields[i][j+1] == fieldState) {
-                    return false;
+                if (j < 11) {
+                    if (fields[i][j + 1] == fieldState) {
+                        return false;
+                    }
                 }
             } else {
                 break;
@@ -174,8 +179,7 @@ function isGameOver() {
 }
 
 function drawField(i, j, color) {
-    var canvas = document.getElementById('clickCanvas');
-    var context = canvas.getContext('2d');
+    var context = $("#clickCanvas")[0].getContext('2d');
 
     context.strokeStyle = '#000000';
     context.lineWidth = 4;
@@ -198,13 +202,13 @@ function drawAllFields() {
 
 function updateTimer() {
     var currentTime = ((new Date()).getTime() - startTime) / 1000;
-    document.getElementById('timeValue').textContent = String(currentTime);
+    $('#timeValue')[0].textContent = String(currentTime);
     return currentTime;
 }
 
 function updateScore() {
     var currentScore = getGameScore();
-    document.getElementById('scoreValue').textContent = currentScore;
+    $('#scoreValue')[0].textContent = currentScore;
     return currentScore;
 }
 
@@ -213,25 +217,27 @@ function appendHighScores(highScore) {
     highScores.pop();
 
     for (var i=0; i<highScores.length; i++) {
-        document.getElementById('timeValue'+i).textContent = highScores[i][0];
-        document.getElementById('scoreValue'+i).textContent = highScores[i][1];
+        $('#timeValue'+i)[0].textContent = highScores[i][0];
+        $('#scoreValue'+i)[0].textContent = highScores[i][1];
     }
 }
 
 function getMousePos(event) {
-    var rect = document.getElementById('clickCanvas').getBoundingClientRect();
+    var rect = $('#clickCanvas')[0].getBoundingClientRect();
     return {
         x: Math.floor((event.clientX - rect.left - 5) / 25),
         y: 11 - Math.floor((event.clientY - rect.top - 5) / 25)
     };
 }
 
-function enableStartButton() {
-    document.getElementById('startButton').style.display = 'inherit';
+function enableButtons() {
+    $('#startButton')[0].style.display = 'inherit';
+    $('#replayButton')[0].style.display = 'inherit';
 }
 
-function disableStartButton() {
-    document.getElementById('startButton').style.display = 'none';
+function disableButtons() {
+    $('#startButton')[0].style.display = 'none';
+    $('#replayButton')[0].style.display = 'none';
 }
 
 function processClick(event) {
@@ -251,30 +257,38 @@ function processClick(event) {
         if (isGameOver()) {
             clearInterval(updateTimerInterval);
             appendHighScores([updateTimer(), updateScore()]);
-            enableStartButton();
+            enableButtons();
             gameActive = false;
         }
     }
 }
 
 function onClick(event) {
-    var currentTime = (new Date()).getTime();
+    if (gameActive) {
+        var currentTime = (new Date()).getTime();
 
-    if (currentTime - lastClickTime > minDoubleClickTime) {
-        processClick(event);
+        // minimal double click time 5ms
+        if (currentTime - lastClickTime > 5) {
+            processClick(event);
+        }
+
+        lastClickTime = currentTime;
     }
-
-    lastClickTime = currentTime;
 }
 
 function startGame() {
-    initFields();
+    fields = $.extend(true, [], startPosition);
     drawAllFields();
-    disableStartButton();
+    disableButtons();
 
     lastClickTime = startTime = (new Date()).getTime();
     updateTimerInterval = setInterval(updateTimer, 67);
     updateScore();
 
     gameActive = true;
+}
+
+function startNewGame() {
+    generateStartPosition();
+    startGame();
 }

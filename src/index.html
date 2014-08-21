@@ -13,21 +13,25 @@
     <meta name="date" content="2014-08-07">
     <title>Click2014</title>
 
-    <link rel="stylesheet" type="text/css" href="reset.css" />
-    <link rel="stylesheet" type="text/css" href="click2014.css" />
-    <script src="click2014.js"></script>
-    <link rel="icon" type="image/png" href="Click2014.png" />
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/click2014.css" />
+    <script src="scripts/jquery-1.11.1.min.js"></script>
+    <script src="scripts/click2014.js"></script>
+    <link rel="icon" type="image/png" href="images/click2014_favicon.png" />
 </head>
 <body>
 
 <div id="mainDiv">
     <canvas id="clickCanvas" width="310px" height="310px" onmousedown="onClick(event)"></canvas>
 
-    <div id="startButtonDiv"><div id="startButton" onclick="startGame()">START</div></div>
+    <div id="startButtonDiv"><div id="startButton" onclick="startNewGame()">NEW GAME</div></div>
 
     <div class="rowDiv">
         <div class="leftDiv" id="timeText">Time:</div><div class="rightDiv" id="timeValue"></div>
         <div class="leftDiv" id="scoreText">Score:</div><div class="rightDiv" id="scoreValue"></div>
+        <div class="replayDiv" id="replay"><div class="replayButtonDiv" id="replayButton" style="display: none" onclick="startGame()">
+            <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+        </div></div>
     </div>
 
     <div id="highScores">
