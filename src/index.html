@@ -24,41 +24,73 @@
 <div id="mainDiv">
     <canvas id="clickCanvas" width="310px" height="310px" onmousedown="onClick(event)"></canvas>
 
-    <div id="startButtonDiv"><div id="startButton" onclick="startNewGame()">NEW GAME</div></div>
+    <div id="startButtonDiv"><div id="startButton" class='button' onclick="startNewGame()">NEW GAME</div></div>
 
-    <div class="rowDiv">
+    <div class="rowDiv"> <div id='rowInnerDiv' class='rowInnerDiv'>
         <div class="leftDiv" id="timeText">Time:</div><div class="rightDiv" id="timeValue"></div>
         <div class="leftDiv" id="scoreText">Score:</div><div class="rightDiv" id="scoreValue"></div>
-        <div class="replayDiv" id="replay"><div class="replayButtonDiv" id="replayButton" style="display: none" onclick="startGame()">
-            <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
-        </div></div>
-    </div>
+        <div class="replayDiv" id="replay">
+            <div id="replayButton" class='button replayButton' style="display: none" onclick="startGame(lastPlayedPosition, true)">
+                <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+            </div>
+        </div>
+    </div></div>
 
     <div id="highScores">
-        <div class="rowDiv">
+        <div class="rowDiv"> <div id='rowInnerDiv0' class='rowInnerDiv'>
             <div class="leftDiv" id="timeText0"></div><div class="rightDiv" id="timeValue0"></div>
             <div class="leftDiv" id="scoreText0"></div><div class="rightDiv" id="scoreValue0"></div>
-        </div>
-        <div class="rowDiv">
+            <div class="replayDiv" id="replay0">
+                <div id="replayButton0" class='button replayButton' style="display: none" onclick="startGame(0, true)">
+                    <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+                </div>
+            </div>
+        </div></div>
+        <div class="rowDiv"> <div id='rowInnerDiv1' class='rowInnerDiv'>
             <div class="leftDiv" id="timeText1"></div><div class="rightDiv" id="timeValue1"></div>
             <div class="leftDiv" id="scoreText1"></div><div class="rightDiv" id="scoreValue1"></div>
-        </div>
-        <div class="rowDiv">
+            <div class="replayDiv" id="replay1">
+                <div id="replayButton1" class='button replayButton' style="display: none" onclick="startGame(1, true)">
+                    <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+                </div>
+            </div>
+        </div></div>
+        <div class="rowDiv"> <div id='rowInnerDiv2' class='rowInnerDiv'>
             <div class="leftDiv" id="timeText2"></div><div class="rightDiv" id="timeValue2"></div>
             <div class="leftDiv" id="scoreText2"></div><div class="rightDiv" id="scoreValue2"></div>
-        </div>
-        <div class="rowDiv">
+            <div class="replayDiv" id="replay2">
+                <div id="replayButton2" class='button replayButton' style="display: none" onclick="startGame(2, true)">
+                    <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+                </div>
+            </div>
+        </div></div>
+        <div class="rowDiv"> <div id='rowInnerDiv3' class='rowInnerDiv'>
             <div class="leftDiv" id="timeText3"></div><div class="rightDiv" id="timeValue3"></div>
             <div class="leftDiv" id="scoreText3"></div><div class="rightDiv" id="scoreValue3"></div>
-        </div>
-        <div class="rowDiv">
+            <div class="replayDiv" id="replay3">
+                <div id="replayButton3" class='button replayButton' style="display: none" onclick="startGame(3, true)">
+                    <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+                </div>
+            </div>
+        </div></div>
+        <div class="rowDiv"> <div id='rowInnerDiv4' class='rowInnerDiv'>
             <div class="leftDiv" id="timeText4"></div><div class="rightDiv" id="timeValue4"></div>
             <div class="leftDiv" id="scoreText4"></div><div class="rightDiv" id="scoreValue4"></div>
-        </div>
-        <div class="rowDiv">
+            <div class="replayDiv" id="replay4">
+                <div id="replayButton4" class='button replayButton' style="display: none" onclick="startGame(4, true)">
+                    <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+                </div>
+            </div>
+        </div></div>
+        <div class="rowDiv"> <div id='rowInnerDiv5' class='rowInnerDiv'>
             <div class="leftDiv" id="timeText5"></div><div class="rightDiv" id="timeValue5"></div>
             <div class="leftDiv" id="scoreText5"></div><div class="rightDiv" id="scoreValue5"></div>
-        </div>
+            <div class="replayDiv" id="replay5">
+                <div id="replayButton5" class='button replayButton' style="display: none" onclick="startGame(5, true)">
+                    <img src="images/replay.gif" style="max-height: 80%; max-width: 80%; margin-bottom: -5px">
+                </div>
+            </div>
+        </div></div>
     </div>
 </div>
 </body>

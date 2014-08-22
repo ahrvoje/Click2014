@@ -38,7 +38,7 @@ body:hover {cursor: default}
     line-height: 30px;
     vertical-align: middle;
     border-radius: 15px;
-    background-color: #ff5100;
+    background-color: #ec8635;
     color: rgb(227, 239, 255);
 }
 
@@ -60,15 +60,15 @@ body:hover {cursor: default}
     display: inline-block;
 }
 
-.replayDiv, .replayButtonDiv {
+.replayDiv, .replayButton {
     width: 26px;
     line-height: 26px;
     border-radius: 13px;
     display: inline-block;
 }
 
-.replayButtonDiv {
-    background-color: #ff5100;
+.replayButton {
+    background-color: #ec8635;
     text-align: center;
 }
 

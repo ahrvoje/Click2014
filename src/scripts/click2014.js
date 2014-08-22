@@ -5,12 +5,12 @@
 */
 
 var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
-var highScores = [['',''], ['',''], ['',''], ['',''], ['',''], ['','']];
-var startPosition = [];
-var fields, startTime, updateTimerInterval, gameActive, lastClickTime;
+var highScores = [];
+var startPositions = [];
+var fields, startTime, updateTimerInterval, gameActive, gameReplay, lastClickTime, lastPlayedPosition;
 
 function generateStartPosition() {
-    var x;
+    var startPosition, x;
 
     startPosition = [];
     for (var i=0; i<12; i++) {
@@ -20,6 +20,12 @@ function generateStartPosition() {
         }
 
         startPosition.push(x);
+    }
+
+    startPositions.unshift(startPosition);
+
+    if (startPositions.length > 6) {
+        startPositions.pop();
     }
 }
 
@@ -214,11 +220,15 @@ function updateScore() {
 
 function appendHighScores(highScore) {
     highScores.unshift(highScore);
-    highScores.pop();
+
+    if (highScores.length > 6) {
+        highScores.pop();
+    }
 
     for (var i=0; i<highScores.length; i++) {
         $('#timeValue'+i)[0].textContent = highScores[i][0];
         $('#scoreValue'+i)[0].textContent = highScores[i][1];
+        $('#rowInnerDiv'+i).css('display', 'inherit');
     }
 }
 
@@ -231,13 +241,11 @@ function getMousePos(event) {
 }
 
 function enableButtons() {
-    $('#startButton')[0].style.display = 'inherit';
-    $('#replayButton')[0].style.display = 'inherit';
+    $('.button').css('display', 'inherit');
 }
 
 function disableButtons() {
-    $('#startButton')[0].style.display = 'none';
-    $('#replayButton')[0].style.display = 'none';
+    $('.button').css('display', 'none');
 }
 
 function processClick(event) {
@@ -256,7 +264,11 @@ function processClick(event) {
 
         if (isGameOver()) {
             clearInterval(updateTimerInterval);
-            appendHighScores([updateTimer(), updateScore()]);
+
+            if (!gameReplay) {
+                appendHighScores([updateTimer(), updateScore()]);
+            }
+
             enableButtons();
             gameActive = false;
         }
@@ -276,8 +288,8 @@ function onClick(event) {
     }
 }
 
-function startGame() {
-    fields = $.extend(true, [], startPosition);
+function startGame(positionIndex, isReplay) {
+    fields = $.extend(true, [], startPositions[positionIndex]);
     drawAllFields();
     disableButtons();
 
@@ -286,9 +298,31 @@ function startGame() {
     updateScore();
 
     gameActive = true;
+    gameReplay = isReplay;
+    lastPlayedPosition = positionIndex;
 }
 
 function startNewGame() {
     generateStartPosition();
-    startGame();
+    startGame(0, false);
 }
+
+function init() {
+    var initOpacity = '0.7';
+    var buttons = $('.button');
+
+    buttons.css('opacity', initOpacity);
+    buttons.hover(
+        function () {
+            $('#'+$(this).attr('id')).css('opacity', '1');
+        },
+        function () {
+            $('#'+$(this).attr('id')).css('opacity', initOpacity);
+        }
+    );
+
+    $('.rowInnerDiv').css('display', 'none');
+    $('#rowInnerDiv').css('display', 'inherit');
+}
+
+$(document).ready(init);
