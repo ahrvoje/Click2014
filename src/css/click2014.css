@@ -96,7 +96,7 @@ body:hover {cursor: default}
 
 .replayButton, .linkButton, .importButton {
     text-align: center;
-    display: inherit;
+    display: none;
 }
 
 .emptyButton {

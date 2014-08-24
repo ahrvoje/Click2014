@@ -11,7 +11,7 @@
 var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
 var historyPositions = [];
 var historyScores = [];
-var startPosition, currentPosition, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
+var startPosition, activePosition, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
 var GameType = {New:0, Replay:1, Imported:2}, gameType;
 var GameState = {Ready:0, Active:1, Finished:2}, gameState;
@@ -88,39 +88,39 @@ function stringToPosition(positionString) {
 function markGroup(i, j, context) {
     if (typeof context == 'undefined') {
         // if field is empty
-        if (currentPosition[i][j] == 0) {
+        if (activePosition[i][j] == 0) {
             return 0;
         }
         // static variable equivalents
-        markGroup.refColor = currentPosition[i][j];
+        markGroup.refColor = activePosition[i][j];
         markGroup.groupSize = 1;
     }
 
-    currentPosition[i][j] = 6;
+    activePosition[i][j] = 6;
 
     if (i>0) {
-        if (currentPosition[i-1][j] == markGroup.refColor) {
+        if (activePosition[i-1][j] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i-1, j, true);
         }
     }
 
     if (i<11) {
-        if (currentPosition[i+1][j] == markGroup.refColor) {
+        if (activePosition[i+1][j] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i+1, j, true);
         }
     }
 
     if (j>0) {
-        if (currentPosition[i][j-1] == markGroup.refColor) {
+        if (activePosition[i][j-1] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i, j-1, true);
         }
     }
 
     if (j<11) {
-        if (currentPosition[i][j+1] == markGroup.refColor) {
+        if (activePosition[i][j+1] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i, j+1, true);
         }
@@ -135,14 +135,14 @@ function collapseDown() {
     for (var i=0; i<12; i++) {
         row = 0;
         for (var j=0; j<12; j++) {
-            fieldState = currentPosition[i][j];
+            fieldState = activePosition[i][j];
 
             if (fieldState>0 && fieldState<6) {
-                currentPosition[i][j] = 0;
-                currentPosition[i][row] = fieldState;
+                activePosition[i][j] = 0;
+                activePosition[i][row] = fieldState;
                 row++;
             } else {
-                currentPosition[i][j] = 0;
+                activePosition[i][j] = 0;
             }
         }
     }
@@ -152,10 +152,10 @@ function collapseLeft() {
     var fieldState;
     // scan all columns excepts the last
     for (var i=0; i<11; i++) {
-        if (currentPosition[i][0] == 0) {
+        if (activePosition[i][0] == 0) {
             // find first non-empty column
             for (var col=i+1; col<12; col++) {
-                if (currentPosition[col][0] > 0)
+                if (activePosition[col][0] > 0)
                     break;
             }
 
@@ -163,13 +163,13 @@ function collapseLeft() {
             // copy it to the empty column and make it empty
             if (col < 12) {
                 for (var j=0; j<12; j++) {
-                    fieldState = currentPosition[col][j];
+                    fieldState = activePosition[col][j];
 
                     if (fieldState == 0) {
                         break;
                     } else {
-                        currentPosition[i][j] = fieldState;
-                        currentPosition[col][j] = 0;
+                        activePosition[i][j] = fieldState;
+                        activePosition[col][j] = 0;
                     }
                 }
             } else {
@@ -189,12 +189,12 @@ function getGameScore() {
 
     for (var i=0; i<12; i++) {
         // stop counting if you came to an empty column
-        if (currentPosition[i][0] == 0) {
+        if (activePosition[i][0] == 0) {
             break;
         }
 
         for (var j=0; j<12; j++) {
-            if (currentPosition[i][j] > 0) {
+            if (activePosition[i][j] > 0) {
                 score++;
             } else {
                 // stop counting if you came to an empty row
@@ -209,25 +209,25 @@ function getGameScore() {
 function isGameOver() {
     var fieldState;
 
-    // try to find at least two connected currentPosition of the same color
+    // try to find at least two connected activePosition of the same color
     for (var i=0; i<12; i++) {
         // stop scanning if you came to an empty part
-        if (currentPosition[i][0] == 0) {
+        if (activePosition[i][0] == 0) {
             return true;
         }
 
         for (var j=0; j<12; j++) {
-            fieldState = currentPosition[i][j];
+            fieldState = activePosition[i][j];
 
             if (fieldState > 0) {
                 if (i < 11) {
-                    if (currentPosition[i + 1][j] == fieldState) {
+                    if (activePosition[i + 1][j] == fieldState) {
                         return false;
                     }
                 }
 
                 if (j < 11) {
-                    if (currentPosition[i][j + 1] == fieldState) {
+                    if (activePosition[i][j + 1] == fieldState) {
                         return false;
                     }
                 }
@@ -255,7 +255,7 @@ function drawField(i, j, color) {
 function drawAllFields() {
     for (var i=0; i<12; i++) {
         for (var j=0; j<12; j++) {
-            drawField(i, j, colors[currentPosition[i][j]]);
+            drawField(i, j, colors[activePosition[i][j]]);
         }
     }
 }
@@ -309,7 +309,7 @@ function hideButtons() {
 
 function processClick(event) {
     var mousePos = getMousePos(event);
-    var fieldState = currentPosition[mousePos.x][mousePos.y];
+    var fieldState = activePosition[mousePos.x][mousePos.y];
 
     // if clicked group is larger than a single field
     if (markGroup(mousePos.x, mousePos.y) > 1) {
@@ -317,7 +317,7 @@ function processClick(event) {
         drawAllFields();
         updateScore();
     } else {
-        currentPosition[mousePos.x][mousePos.y] = fieldState;
+        activePosition[mousePos.x][mousePos.y] = fieldState;
     }
 
     if (isGameOver()) {
@@ -359,7 +359,7 @@ function onCanvasClick(event) {
 }
 
 function prepareGame() {
-    currentPosition = $.extend(true, [], startPosition);
+    activePosition = $.extend(true, [], startPosition);
     drawAllFields();
     $('#timeValue')[0].textContent = '';
     $('#scoreValue')[0].textContent = '';
