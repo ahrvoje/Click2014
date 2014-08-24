@@ -1,16 +1,57 @@
 /*
-    Author: Hrvoje Abraham
-    Email: ahrvoje@gmail.com
-    Date: 08.08.2014.
-*/
+ * Click2014
+ *
+ * Copyright 2014, Hrvoje Abraham ahrvoje@gmail.com
+ * Released under the MIT license.
+ * http://www.opensource.org/licenses/mit-license.php
+ *
+ * Date: Fri Aug 08, 2014
+ */
 
 var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
-var highScores = [];
-var startPositions = [];
-var fields, startTime, updateTimerInterval, gameActive, gameReplay, lastClickTime, lastPlayedPosition;
+var historyPositions = [];
+var historyScores = [];
+var startPosition, currentPosition, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
+
+var GameType = {New:0, Replay:1, Imported:2}, gameType;
+var GameState = {Ready:0, Active:1, Finished:2}, gameState;
+var ImportMethod = {FromAddressBar:0, FromLink:1};
+
+function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+
+    var params = {}, tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
+
+function promptGameLink(positionIndex) {
+    var gameLinkString = String(document.location).split('?', 1) + '?position=';
+
+    var position;
+    if (positionIndex == -1) {
+        position = startPosition;
+    } else {
+        position = historyPositions[positionIndex];
+    }
+
+    for (var i=0; i<12; i++) {
+        for (var j=0; j<12; j++) {
+            gameLinkString += String(position[i][j]);
+        }
+    }
+
+    prompt('Copy link to clipboard (Ctrl+C)', gameLinkString);
+}
 
 function generateStartPosition() {
-    var startPosition, x;
+    var x;
 
     startPosition = [];
     for (var i=0; i<12; i++) {
@@ -21,50 +62,65 @@ function generateStartPosition() {
 
         startPosition.push(x);
     }
+}
 
-    startPositions.unshift(startPosition);
+function stringToPosition(positionString) {
+    var x, column=[], position=[];
 
-    if (startPositions.length > 6) {
-        startPositions.pop();
+    for (var i=0; i<positionString.length; i++) {
+        x = parseInt(positionString[i]);
+
+        if (x>0 && x<6) {
+            column.push(parseInt(positionString[i]));
+        } else {
+            column.push(0);
+        }
+
+        if (i%12 == 11) {
+            position.push(column);
+            column = [];
+        }
     }
+
+    return position;
 }
 
 function markGroup(i, j, context) {
     if (typeof context == 'undefined') {
         // if field is empty
-        if (fields[i][j] == 0) {
+        if (currentPosition[i][j] == 0) {
             return 0;
         }
         // static variable equivalents
-        markGroup.refColor = fields[i][j];
+        markGroup.refColor = currentPosition[i][j];
         markGroup.groupSize = 1;
     }
 
-    fields[i][j] = 6;
+    currentPosition[i][j] = 6;
 
     if (i>0) {
-        if (fields[i-1][j] == markGroup.refColor) {
+        if (currentPosition[i-1][j] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i-1, j, true);
         }
     }
 
     if (i<11) {
-        if (fields[i+1][j] == markGroup.refColor) {
+        if (currentPosition[i+1][j] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i+1, j, true);
         }
     }
 
     if (j>0) {
-        if (fields[i][j-1] == markGroup.refColor) {
+        if (currentPosition[i][j-1] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i, j-1, true);
         }
     }
 
     if (j<11) {
-        if (fields[i][j+1] == markGroup.refColor) {
+        if (currentPosition[i][j+1] == markGroup.refColor) {
             markGroup.groupSize++;
             markGroup(i, j+1, true);
         }
@@ -79,14 +135,14 @@ function collapseDown() {
     for (var i=0; i<12; i++) {
         row = 0;
         for (var j=0; j<12; j++) {
-            fieldState = fields[i][j];
+            fieldState = currentPosition[i][j];
 
             if (fieldState>0 && fieldState<6) {
-                fields[i][j] = 0;
-                fields[i][row] = fieldState;
+                currentPosition[i][j] = 0;
+                currentPosition[i][row] = fieldState;
                 row++;
             } else {
-                fields[i][j] = 0;
+                currentPosition[i][j] = 0;
             }
         }
     }
@@ -96,10 +152,10 @@ function collapseLeft() {
     var fieldState;
     // scan all columns excepts the last
     for (var i=0; i<11; i++) {
-        if (fields[i][0] == 0) {
+        if (currentPosition[i][0] == 0) {
             // find first non-empty column
             for (var col=i+1; col<12; col++) {
-                if (fields[col][0] > 0)
+                if (currentPosition[col][0] > 0)
                     break;
             }
 
@@ -107,13 +163,13 @@ function collapseLeft() {
             // copy it to the empty column and make it empty
             if (col < 12) {
                 for (var j=0; j<12; j++) {
-                    fieldState = fields[col][j];
+                    fieldState = currentPosition[col][j];
 
                     if (fieldState == 0) {
                         break;
                     } else {
-                        fields[i][j] = fieldState;
-                        fields[col][j] = 0;
+                        currentPosition[i][j] = fieldState;
+                        currentPosition[col][j] = 0;
                     }
                 }
             } else {
@@ -133,12 +189,12 @@ function getGameScore() {
 
     for (var i=0; i<12; i++) {
         // stop counting if you came to an empty column
-        if (fields[i][0] == 0) {
+        if (currentPosition[i][0] == 0) {
             break;
         }
 
         for (var j=0; j<12; j++) {
-            if (fields[i][j] > 0) {
+            if (currentPosition[i][j] > 0) {
                 score++;
             } else {
                 // stop counting if you came to an empty row
@@ -153,25 +209,25 @@ function getGameScore() {
 function isGameOver() {
     var fieldState;
 
-    // try to find at least two connected fields of the same color
+    // try to find at least two connected currentPosition of the same color
     for (var i=0; i<12; i++) {
         // stop scanning if you came to an empty part
-        if (fields[i][0] == 0) {
+        if (currentPosition[i][0] == 0) {
             return true;
         }
 
         for (var j=0; j<12; j++) {
-            fieldState = fields[i][j];
+            fieldState = currentPosition[i][j];
 
             if (fieldState > 0) {
                 if (i < 11) {
-                    if (fields[i + 1][j] == fieldState) {
+                    if (currentPosition[i + 1][j] == fieldState) {
                         return false;
                     }
                 }
 
                 if (j < 11) {
-                    if (fields[i][j + 1] == fieldState) {
+                    if (currentPosition[i][j + 1] == fieldState) {
                         return false;
                     }
                 }
@@ -185,23 +241,21 @@ function isGameOver() {
 }
 
 function drawField(i, j, color) {
-    var context = $("#clickCanvas")[0].getContext('2d');
+    drawingContext.strokeStyle = '#000000';
+    drawingContext.lineWidth = 4;
 
-    context.strokeStyle = '#000000';
-    context.lineWidth = 4;
+    drawingContext.beginPath();
+    drawingContext.rect(25*i+5, 300-25*(j+1)+5, 25, 25);
+    drawingContext.stroke();
 
-    context.beginPath();
-    context.rect(25*i+5, 300-25*(j+1)+5, 25, 25);
-    context.stroke();
-
-    context.fillStyle = color;
-    context.fill();
+    drawingContext.fillStyle = color;
+    drawingContext.fill();
 }
 
 function drawAllFields() {
     for (var i=0; i<12; i++) {
         for (var j=0; j<12; j++) {
-            drawField(i, j, colors[fields[i][j]]);
+            drawField(i, j, colors[currentPosition[i][j]]);
         }
     }
 }
@@ -218,69 +272,85 @@ function updateScore() {
     return currentScore;
 }
 
-function appendHighScores(highScore) {
-    highScores.unshift(highScore);
-
-    if (highScores.length > 6) {
-        highScores.pop();
+function appendHistory(score) {
+    historyPositions.unshift(startPosition);
+    if (historyPositions.length > 6) {
+        historyPositions.pop();
     }
 
-    for (var i=0; i<highScores.length; i++) {
-        $('#timeValue'+i)[0].textContent = highScores[i][0];
-        $('#scoreValue'+i)[0].textContent = highScores[i][1];
-        $('#rowInnerDiv'+i).css('display', 'inherit');
+    historyScores.unshift(score);
+    if (historyScores.length > 6) {
+        historyScores.pop();
     }
+
+    for (var i=0; i<historyScores.length; i++) {
+        $('#timeValue'+i)[0].textContent = historyScores[i][0];
+        $('#scoreValue'+i)[0].textContent = historyScores[i][1];
+    }
+
+    $('#rowInnerDiv'+String(historyScores.length-1)).css('display', 'inherit');
 }
 
 function getMousePos(event) {
-    var rect = $('#clickCanvas')[0].getBoundingClientRect();
+    var rect = $('#gameCanvas')[0].getBoundingClientRect();
     return {
         x: Math.floor((event.clientX - rect.left - 5) / 25),
         y: 11 - Math.floor((event.clientY - rect.top - 5) / 25)
     };
 }
 
-function enableButtons() {
+function showButtons() {
     $('.button').css('display', 'inherit');
 }
 
-function disableButtons() {
+function hideButtons() {
     $('.button').css('display', 'none');
 }
 
 function processClick(event) {
-    if (gameActive) {
-        var mousePos = getMousePos(event);
-        var fieldState = fields[mousePos.x][mousePos.y];
+    var mousePos = getMousePos(event);
+    var fieldState = currentPosition[mousePos.x][mousePos.y];
 
-        // if clicked group is larger than a single field
-        if (markGroup(mousePos.x, mousePos.y) > 1) {
-            collapseGroup();
-            drawAllFields();
-            updateScore();
-        } else {
-            fields[mousePos.x][mousePos.y] = fieldState;
+    // if clicked group is larger than a single field
+    if (markGroup(mousePos.x, mousePos.y) > 1) {
+        collapseGroup();
+        drawAllFields();
+        updateScore();
+    } else {
+        currentPosition[mousePos.x][mousePos.y] = fieldState;
+    }
+
+    if (isGameOver()) {
+        gameState = GameState.Finished;
+        clearInterval(updateTimerInterval);
+
+        if (gameType == GameType.New) {
+            appendHistory([updateTimer(), updateScore()]);
         }
 
-        if (isGameOver()) {
-            clearInterval(updateTimerInterval);
-
-            if (!gameReplay) {
-                appendHighScores([updateTimer(), updateScore()]);
-            }
-
-            enableButtons();
-            gameActive = false;
-        }
+        showButtons();
     }
 }
 
-function onClick(event) {
-    if (gameActive) {
+function onCanvasClick(event) {
+    var firstClick = false;
+
+    if (gameState == GameState.Ready) {
+        hideButtons();
+
+        lastClickTime = startTime = (new Date()).getTime();
+        updateTimerInterval = setInterval(updateTimer, 67);
+        updateScore();
+
+        gameState = GameState.Active;
+        firstClick = true;
+    }
+
+    if (gameState == GameState.Active) {
         var currentTime = (new Date()).getTime();
 
         // minimal double click time 5ms
-        if (currentTime - lastClickTime > 5) {
+        if (firstClick || currentTime - lastClickTime > 5) {
             processClick(event);
         }
 
@@ -288,41 +358,67 @@ function onClick(event) {
     }
 }
 
-function startGame(positionIndex, isReplay) {
-    fields = $.extend(true, [], startPositions[positionIndex]);
+function prepareGame() {
+    currentPosition = $.extend(true, [], startPosition);
     drawAllFields();
-    disableButtons();
-
-    lastClickTime = startTime = (new Date()).getTime();
-    updateTimerInterval = setInterval(updateTimer, 67);
-    updateScore();
-
-    gameActive = true;
-    gameReplay = isReplay;
-    lastPlayedPosition = positionIndex;
+    $('#timeValue')[0].textContent = '';
+    $('#scoreValue')[0].textContent = '';
+    gameState = GameState.Ready;
 }
 
 function startNewGame() {
     generateStartPosition();
-    startGame(0, false);
+    prepareGame();
+    lastPlayedPositionIndex = -1;
+    gameType = GameType.New;
+}
+
+function replayHistoryPosition(positionIndex) {
+    startPosition = $.extend(true, [], historyPositions[positionIndex]);
+    prepareGame();
+    lastPlayedPositionIndex = positionIndex;
+    gameType = GameType.Replay;
+}
+
+function replayStartPosition() {
+    prepareGame();
+    lastPlayedPositionIndex = -1;
+    gameType = GameType.Replay;
+}
+
+function importGame(importMethod) {
+    var importedString;
+
+    if (importMethod == ImportMethod.FromAddressBar)
+        importedString = getQueryParams(document.location.search).position;
+    else
+        importedString = prompt('Paste game link below').split('=')[1];
+
+    if (importedString.length == 144)
+        startPosition = stringToPosition(importedString);
+    else
+        return;
+
+    prepareGame();
+    lastPlayedPositionIndex = -1;
+    gameType = GameType.Imported;
 }
 
 function init() {
-    var initOpacity = '0.7';
-    var buttons = $('.button');
+    drawingContext = $("#gameCanvas")[0].getContext('2d');
 
-    buttons.css('opacity', initOpacity);
-    buttons.hover(
-        function () {
-            $('#'+$(this).attr('id')).css('opacity', '1');
-        },
-        function () {
-            $('#'+$(this).attr('id')).css('opacity', initOpacity);
-        }
+    $('.button').hover(
+        function () {$(this).addClass('buttonOn');},
+        function () {$(this).removeClass('buttonOn');}
     );
 
-    $('.rowInnerDiv').css('display', 'none');
-    $('#rowInnerDiv').css('display', 'inherit');
+    $(".leftDiv[id^='timeText']").css('width', $('#timeText').css('width'));
+    $(".leftDiv[id^='scoreText']").css('width', $('#scoreText').css('width'));
+
+    gameType = GameType.New;
+    gameState = GameState.Finished;
+
+    importGame(ImportMethod.FromAddressBar);
 }
 
 $(document).ready(init);
