@@ -17,7 +17,7 @@ body {
     height: 100%;
     margin: 0 auto;
     background-color: rgba(19, 121, 202, 0.1);
-    background: url(../images/background.png) no-repeat;
+    background: url(../images/background.jpg) no-repeat;
     background-size: 100%;
 
     -webkit-touch-callout: none;
@@ -83,10 +83,12 @@ body:hover {cursor: default}
     min-width: 250px;
 }
 
-#IEWarning {
+#Warning {
     height: 100px;
+    color: black;
     font-size: 30px;
     text-align: center;
+    display: none;
 }
 
 #gameCanvas {

@@ -10,6 +10,7 @@
 
 var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
 
+/*
 function HistoryItem(position, score, index) {
     this.position = position;
     this.score = score;
@@ -38,7 +39,7 @@ function HistoryItem(position, score, index) {
 }
 
 var history = [];
-
+*/
 var startPosition, activePosition, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
 var GameType = {New:0, Replay:1, Imported:2}, gameType;
@@ -435,7 +436,50 @@ function importGame(importMethod) {
     gameType = GameType.Imported;
 }
 
+function checkBrowser() {
+    var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome")>-1);
+    var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox")>-1);
+
+    var warningDiv = $("#Warning");
+
+    if (!isChrome && !isFirefox) {
+        $(warningDiv).text("Please use Chrome or Firefox browser!");
+        $(warningDiv).css("display", "inherit");
+        return false;
+    }
+
+    if (isChrome) {
+        var chromeVersion = parseInt(navigator.userAgent.match(/Chrome\/(\d+)\./)[1], 10);
+
+        if (chromeVersion < 33) {
+            $(warningDiv).text("Please use Chrome 33 or newer!");
+            $(warningDiv).css("display", "inherit");
+            return false;
+        } else {
+            $(".button, .icon").addClass("chrome");
+        }
+    }
+
+    if (isFirefox) {
+        var firefoxVersion = parseInt(navigator.userAgent.match(/Firefox\/(\d+)\./)[1], 10);
+
+        if (firefoxVersion < 30) {
+            $(warningDiv).text("Please use Firefox 30 or newer!");
+            $(warningDiv).css("display", "inherit");
+            return false;
+        } else {
+            $(".button, .icon").addClass("firefox");
+        }
+    }
+
+    return true;
+}
+
 function init() {
+    if (!checkBrowser()) {
+        return;
+    }
+
     drawingContext = $("#gameCanvas")[0].getContext('2d');
 
     $(".button").hover(
@@ -443,21 +487,7 @@ function init() {
         function () {$(this).removeClass("buttonOn");}
     );
 
-    var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome")>-1);
-    var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox")>-1);
-
-    if (isChrome || isFirefox) {
-        $("#IEWarning").css("display", "none");
-        $("#game").css("display", "inline-block");
-    }
-
-    if (isChrome) {
-        $(".button, .icon").addClass("chrome");
-    }
-
-    if (isFirefox) {
-        $(".button, .icon").addClass("firefox");
-    }
+    $("#game").css("display", "inline-block");
 
     gameType = GameType.New;
     gameState = GameState.Finished;
