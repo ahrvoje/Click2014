@@ -13,10 +13,16 @@
 
 <html>
 <head lang="en">
-    <meta charset="UTF-8">
-    <meta name="author" content="Hrvoje Abraham">
-    <meta name="date" content="2014-08-07">
     <title>Click2014</title>
+    <meta charset="UTF-8" />
+    <meta name="author" content="Hrvoje Abraham" />
+    <meta name="date" content="2014-08-07" />
+
+    <!-- facebook share info -->
+    <meta property="og:title" content="Click2014" />
+    <meta property="og:description" content="Color clicking puzzle." />
+    <meta property="og:url" content="https://dl.dropboxusercontent.com/u/22729464/Click2014/index.html" />
+    <meta property="og:image" content="https://dl.dropboxusercontent.com/u/22729464/Click2014/images/click2014_fbShare.png" />
 
     <link rel="stylesheet" type="text/css" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" href="css/click2014.css" />
@@ -41,17 +47,17 @@
                 <div class="filler"></div>
                 <div class="importDiv" id="import">
                     <div id="importButton" class="button importButton" onclick="importGame(ImportMethod.FromLink)">
-                        <img class='icon importIcon' src="images/import_icon_on.png">
+                        <img class='icon importIcon' src="images/import_icon_on.png" />
                     </div>
                 </div>
                 <div class="linkDiv" id="link">
                     <div id="linkButton" class="button linkButton" onclick="promptGameLink(lastPlayedPositionIndex)">
-                        <img class='icon linkIcon' src="images/link_icon_on.png">
+                        <img class='icon linkIcon' src="images/link_icon_on.png" />
                     </div>
                 </div>
                 <div class="replayDiv" id="replay">
                     <div id="replayButton" class="button replayButton" onclick="replayStartPosition()">
-                        <img class='icon replayIcon' src="images/replay_icon_on.png">
+                        <img class='icon replayIcon' src="images/replay_icon_on.png" />
                     </div>
                 </div>
             </div></div>
