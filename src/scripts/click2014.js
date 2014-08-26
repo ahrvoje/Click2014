@@ -9,8 +9,36 @@
  */
 
 var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
-var historyPositions = [];
-var historyScores = [];
+
+function HistoryItem(position, score, index) {
+    this.position = position;
+    this.score = score;
+    this.getHTML = function () {
+        return '<div class="rowDiv"> <div id="rowInnerDiv' + index + '" class="rowInnerDiv">\
+                <div class="leftDiv" id="timeText' + index + '">Time:</div><div class="rightDiv" id="timeValue' + index + '">' + score[0] + '</div>\
+                <div class="leftDiv" id="scoreText' + index + '">Score:</div><div class="rightDiv" id="scoreValue' + index + '">' + score[1] + '</div>\
+                <div class="filler"></div>\
+                <div class="emptyButtonDiv" id="emptyButtonDiv' + index + '">\
+                    <div id="emptyButton' + index + '" class="emptyButton">\
+                    EMPTY\
+                    </div>\
+                </div>\
+                <div class="linkDiv" id="link' + index + '">\
+                    <div id="linkButton' + index + '" class="button linkButton" onclick="promptGameLink(' + index + ')">\
+                        x\
+                        </div>\
+                    </div>\
+                    <div class="replayDiv" id="replay' + index + '">\
+                        <div id="replayButton' + index + '" class="button replayButton" onclick="replayHistoryPosition(' + index + ')">\
+                            x\
+                            </div>\
+                        </div>\
+                    </div></div>';
+    }
+}
+
+var history = [];
+
 var startPosition, activePosition, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
 var GameType = {New:0, Replay:1, Imported:2}, gameType;
@@ -323,11 +351,11 @@ function processClick(event) {
     if (isGameOver()) {
         gameState = GameState.Finished;
         clearInterval(updateTimerInterval);
-
+/*
         if (gameType == GameType.New) {
             appendHistory([updateTimer(), updateScore()]);
         }
-
+*/
         showButtons();
     }
 }
@@ -394,9 +422,12 @@ function importGame(importMethod) {
     else
         importedString = prompt('Paste game link below').split('=')[1];
 
-    if (importedString.length == 144)
-        startPosition = stringToPosition(importedString);
-    else
+    if (typeof importedString == "string") {
+        if (importedString.length == 144)
+            startPosition = stringToPosition(importedString);
+        else
+            return;
+    } else
         return;
 
     prepareGame();
@@ -407,13 +438,26 @@ function importGame(importMethod) {
 function init() {
     drawingContext = $("#gameCanvas")[0].getContext('2d');
 
-    $('.button').hover(
-        function () {$(this).addClass('buttonOn');},
-        function () {$(this).removeClass('buttonOn');}
+    $(".button").hover(
+        function () {$(this).addClass("buttonOn");},
+        function () {$(this).removeClass("buttonOn");}
     );
 
-    $(".leftDiv[id^='timeText']").css('width', $('#timeText').css('width'));
-    $(".leftDiv[id^='scoreText']").css('width', $('#scoreText').css('width'));
+    var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome")>-1);
+    var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox")>-1);
+
+    if (isChrome || isFirefox) {
+        $("#IEWarning").css("display", "none");
+        $("#game").css("display", "inline-block");
+    }
+
+    if (isChrome) {
+        $(".button, .icon").addClass("chrome");
+    }
+
+    if (isFirefox) {
+        $(".button, .icon").addClass("firefox");
+    }
 
     gameType = GameType.New;
     gameState = GameState.Finished;

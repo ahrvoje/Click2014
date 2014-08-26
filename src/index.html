@@ -27,146 +27,41 @@
 <body>
 
 <div id="mainDiv">
-    <canvas id="gameCanvas" width="310px" height="310px" onmousedown="onCanvasClick(event)"></canvas>
+    <div id="mainTop">
+        <div id="mainLeft"><img src="images/click2014_favicon.png"> Click2014</div>
+        <div id="IEWarning">Please use Chrome or Firefox browser!</div>
+        <div id="game">
+            <canvas id="gameCanvas" width="310px" height="310px" onmousedown="onCanvasClick(event)"></canvas>
 
-    <div id="startButtonDiv"><div id="startButton" class='button' onclick="startNewGame()">NEW GAME</div></div>
+            <div id="startButtonDiv"><div id="startButton" class="button" onclick="startNewGame()">NEW GAME</div></div>
 
-    <div class="rowDiv"> <div id='rowInnerDiv' class='rowInnerDiv'>
-        <div class="leftDiv" id="timeText">Time:</div><div class="rightDiv" id="timeValue"></div>
-        <div class="leftDiv" id="scoreText">Score:</div><div class="rightDiv" id="scoreValue"></div>
-        <div class="importDiv" id="import">
-            <div id="importButton" class='button importButton' onclick="importGame(ImportMethod.FromLink)">
-                <img class='importIcon' src="images/import_icon.png">
-            </div>
-        </div>
-        <div class="linkDiv" id="link">
-            <div id="linkButton" class='button linkButton' onclick="promptGameLink(lastPlayedPositionIndex)">
-                <img class='linkIcon' src="images/link_icon.png">
-            </div>
-        </div>
-        <div class="replayDiv" id="replay">
-            <div id="replayButton" class='button replayButton' onclick="replayStartPosition()">
-                <img class='replayIcon' src="images/replay_icon.png">
-            </div>
-        </div>
-    </div></div>
+            <div class="rowDiv"> <div id="rowInnerDiv" class="rowInnerDiv">
+                <div class="leftDiv" id="timeText">Time:</div><div  id="timeValue" class="rightDiv timeValue"></div>
+                <div class="leftDiv" id="scoreText">Score:</div><div  id="scoreValue" class="rightDiv scoreValue"></div>
+                <div class="filler"></div>
+                <div class="importDiv" id="import">
+                    <div id="importButton" class="button importButton" onclick="importGame(ImportMethod.FromLink)">
+                        <img class='icon importIcon' src="images/import_icon_on.png">
+                    </div>
+                </div>
+                <div class="linkDiv" id="link">
+                    <div id="linkButton" class="button linkButton" onclick="promptGameLink(lastPlayedPositionIndex)">
+                        <img class='icon linkIcon' src="images/link_icon_on.png">
+                    </div>
+                </div>
+                <div class="replayDiv" id="replay">
+                    <div id="replayButton" class="button replayButton" onclick="replayStartPosition()">
+                        <img class='icon replayIcon' src="images/replay_icon_on.png">
+                    </div>
+                </div>
+            </div></div>
 
-    <div id="history">
-        <div class="rowDiv"> <div id='rowInnerDiv0' class='rowInnerDiv'>
-            <div class="leftDiv" id="timeText0"></div><div class="rightDiv" id="timeValue0"></div>
-            <div class="leftDiv" id="scoreText0"></div><div class="rightDiv" id="scoreValue0"></div>
-            <div class="emptyButtonDiv" id="emptyButtonDiv0">
-                <div id="emptyButton0" class='emptyButton'>
-                    EMPTY
-                </div>
-            </div>
-            <div class="linkDiv" id="link0">
-                <div id="linkButton0" class='button linkButton' onclick="promptGameLink(0)">
-                    <img class='linkIcon' src="images/link_icon.png">
-                </div>
-            </div>
-            <div class="replayDiv" id="replay0">
-                <div id="replayButton0" class='button replayButton' onclick="replayHistoryPosition(0)">
-                    <img src="images/replay_icon.png" class='replayIcon'>
-                </div>
-            </div>
-        </div></div>
-        <div class="rowDiv"> <div id='rowInnerDiv1' class='rowInnerDiv'>
-            <div class="leftDiv" id="timeText1"></div><div class="rightDiv" id="timeValue1"></div>
-            <div class="leftDiv" id="scoreText1"></div><div class="rightDiv" id="scoreValue1"></div>
-            <div class="emptyButtonDiv" id="emptyButtonDiv1">
-                <div id="emptyButton1" class='emptyButton'>
-                    EMPTY
-                </div>
-            </div>
-            <div class="linkDiv" id="link1">
-                <div id="linkButton1" class='button linkButton' onclick="promptGameLink(1)">
-                    <img class='linkIcon' src="images/link_icon.png">
-                </div>
-            </div>
-            <div class="replayDiv" id="replay1">
-                <div id="replayButton1" class='button replayButton' onclick="replayHistoryPosition(1)">
-                    <img src="images/replay_icon.png" class='replayIcon'>
-                </div>
-            </div>
-        </div></div>
-        <div class="rowDiv"> <div id='rowInnerDiv2' class='rowInnerDiv'>
-            <div class="leftDiv" id="timeText2"></div><div class="rightDiv" id="timeValue2"></div>
-            <div class="leftDiv" id="scoreText2"></div><div class="rightDiv" id="scoreValue2"></div>
-            <div class="emptyButtonDiv" id="emptyButtonDiv2">
-                <div id="emptyButton2" class='emptyButton'>
-                    EMPTY
-                </div>
-            </div>
-            <div class="linkDiv" id="link2">
-                <div id="linkButton2" class='button linkButton' onclick="promptGameLink(2)">
-                    <img class='linkIcon' src="images/link_icon.png">
-                </div>
-            </div>
-            <div class="replayDiv" id="replay2">
-                <div id="replayButton2" class='button replayButton' onclick="replayHistoryPosition(2)">
-                    <img src="images/replay_icon.png" class='replayIcon'>
-                </div>
-            </div>
-        </div></div>
-        <div class="rowDiv"> <div id='rowInnerDiv3' class='rowInnerDiv'>
-            <div class="leftDiv" id="timeText3"></div><div class="rightDiv" id="timeValue3"></div>
-            <div class="leftDiv" id="scoreText3"></div><div class="rightDiv" id="scoreValue3"></div>
-            <div class="emptyButtonDiv" id="emptyButtonDiv3">
-                <div id="emptyButton3" class='emptyButton'>
-                    EMPTY
-                </div>
-            </div>
-            <div class="linkDiv" id="link3">
-                <div id="linkButton3" class='button linkButton' onclick="promptGameLink(3)">
-                    <img class='linkIcon' src="images/link_icon.png">
-                </div>
-            </div>
-            <div class="replayDiv" id="replay3">
-                <div id="replayButton3" class='button replayButton' onclick="replayHistoryPosition(3)">
-                    <img src="images/replay_icon.png" class='replayIcon'>
-                </div>
-            </div>
-        </div></div>
-        <div class="rowDiv"> <div id='rowInnerDiv4' class='rowInnerDiv'>
-            <div class="leftDiv" id="timeText4"></div><div class="rightDiv" id="timeValue4"></div>
-            <div class="leftDiv" id="scoreText4"></div><div class="rightDiv" id="scoreValue4"></div>
-            <div class="emptyButtonDiv" id="emptyButtonDiv4">
-                <div id="emptyButton4" class='emptyButton'>
-                    EMPTY
-                </div>
-            </div>
-            <div class="linkDiv" id="link4">
-                <div id="linkButton4" class='button linkButton' onclick="promptGameLink(4)">
-                    <img class='linkIcon' src="images/link_icon.png">
-                </div>
-            </div>
-            <div class="replayDiv" id="replay4">
-                <div id="replayButton4" class='button replayButton' onclick="replayHistoryPosition(4)">
-                    <img src="images/replay_icon.png" class='replayIcon'>
-                </div>
-            </div>
-        </div></div>
-        <div class="rowDiv"> <div id='rowInnerDiv5' class='rowInnerDiv'>
-            <div class="leftDiv" id="timeText5"></div><div class="rightDiv" id="timeValue5"></div>
-            <div class="leftDiv" id="scoreText5"></div><div class="rightDiv" id="scoreValue5"></div>
-            <div class="emptyButtonDiv" id="emptyButtonDiv5">
-                <div id="emptyButton5" class='emptyButton'>
-                    EMPTY
-                </div>
-            </div>
-            <div class="linkDiv" id="link5">
-                <div id="linkButton5" class='button linkButton' onclick="promptGameLink(5)">
-                    <img class='linkIcon' src="images/link_icon.png">
-                </div>
-            </div>
-            <div class="replayDiv" id="replay5">
-                <div id="replayButton5" class='button replayButton' onclick="replayHistoryPosition(5)">
-                    <img src="images/replay_icon.png" class='replayIcon'>
-                </div>
-            </div>
-        </div></div>
+            <!-- <div id="history"></div> -->
+        </div>
+        <div id="mainRight"></div>
     </div>
+    <div id="mainFiller"></div>
+    <div id="footer">Copyright 2014 &copy Hrvoje Abraham</div>
 </div>
 </body>
 </html>
