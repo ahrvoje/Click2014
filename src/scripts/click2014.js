@@ -40,7 +40,7 @@ function HistoryItem(position, score, index) {
 
 var history = [];
 */
-var startPosition, activePosition, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
+var startPosition, activePosition, drawingCanvas, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
 var GameType = {New:0, Replay:1, Imported:2}, gameType;
 var GameState = {Ready:0, Active:1, Finished:2}, gameState;
@@ -270,11 +270,8 @@ function isGameOver() {
 }
 
 function drawField(i, j, color) {
-    drawingContext.strokeStyle = '#000000';
-    drawingContext.lineWidth = 4;
-
     drawingContext.beginPath();
-    drawingContext.rect(25*i+5, 300-25*(j+1)+5, 25, 25);
+    drawingContext.rect(25*i+5, 300-25*(j+1)+5, 23, 23);
     drawingContext.stroke();
 
     drawingContext.fillStyle = color;
@@ -282,9 +279,23 @@ function drawField(i, j, color) {
 }
 
 function drawAllFields() {
+    // clear canvas hack
+    drawingCanvas.width = drawingCanvas.width;
+
+    var color;
     for (var i=0; i<12; i++) {
+        // stop drawing if you came to empty part
+        if (activePosition[i][0] == 0) {
+            return;
+        }
+
         for (var j=0; j<12; j++) {
-            drawField(i, j, colors[activePosition[i][j]]);
+            color = activePosition[i][j];
+
+            // stop drawing this column if you came to empty part
+            if (color > 0) {
+                drawField(i, j, colors[color]);
+            }
         }
     }
 }
@@ -390,8 +401,8 @@ function onCanvasClick(event) {
 function prepareGame() {
     activePosition = $.extend(true, [], startPosition);
     drawAllFields();
-    $('#timeValue')[0].textContent = '';
-    $('#scoreValue')[0].textContent = '';
+    $('#timeValue').text('');
+    $('#scoreValue').text('');
     gameState = GameState.Ready;
 }
 
@@ -480,7 +491,10 @@ function init() {
         return;
     }
 
-    drawingContext = $("#gameCanvas")[0].getContext('2d');
+    drawingCanvas = $("#gameCanvas")[0];
+    drawingContext = drawingCanvas.getContext('2d');
+    drawingContext.strokeStyle = '#000000';
+    drawingContext.lineWidth = 4;
 
     $(".button").hover(
         function () {$(this).addClass("buttonOn");},
