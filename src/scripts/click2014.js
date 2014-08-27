@@ -8,12 +8,13 @@
  * Date: Fri Aug 08, 2014
  */
 
-var colors = ['#000000', '#FF0000', '#00BF00', '#0000FF', '#EFEF00', '#00DFFF', '#888888'];
+var colors = ["#000000", "#FF0000", "#00BF00", "#0000FF", "#EFEF00", "#00DFFF", "#888888"];
 
-/*
-function HistoryItem(position, score, index) {
+function HistoryItem(position, score, moves) {
     this.position = position;
     this.score = score;
+    this.moves = moves;
+/*
     this.getHTML = function () {
         return '<div class="rowDiv"> <div id="rowInnerDiv' + index + '" class="rowInnerDiv">\
                 <div class="leftDiv" id="timeText' + index + '">Time:</div><div class="rightDiv" id="timeValue' + index + '">' + score[0] + '</div>\
@@ -36,47 +37,60 @@ function HistoryItem(position, score, index) {
                         </div>\
                     </div></div>';
     }
+*/
 }
 
-var history = [];
-*/
-var startPosition, activePosition, drawingCanvas, drawingContext, startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
+var history = [], moves;
+var startPosition, activePosition, drawingCanvas, drawingContext;
+var startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
 var GameType = {New:0, Replay:1, Imported:2}, gameType;
 var GameState = {Ready:0, Active:1, Finished:2}, gameState;
 var ImportMethod = {FromAddressBar:0, FromLink:1};
 
 function getQueryParams(qs) {
-    qs = qs.split("+").join(" ");
+    var result = {};
+    var params = (qs.split('?')[1] || '').split('&');
+    var paramParts;
 
-    var params = {}, tokens,
-        re = /[?&]?([^=]+)=([^&]*)/g;
-
-    while (tokens = re.exec(qs)) {
-        params[decodeURIComponent(tokens[1])]
-            = decodeURIComponent(tokens[2]);
+    for(var param in params) {
+        if (params.hasOwnProperty(param)) {
+            paramParts = params[param].split('=');
+            result[paramParts[0]] = decodeURIComponent(paramParts[1] || "");
+        }
     }
-
-    return params;
+    return result;
 }
 
 function promptGameLink(positionIndex) {
-    var gameLinkString = String(document.location).split('?', 1) + '?position=';
+    var gameLinkString = String(document.location).split("?", 1) + "?position=";
+    var position, i;
 
-    var position;
     if (positionIndex == -1) {
         position = startPosition;
     } else {
         position = historyPositions[positionIndex];
     }
 
-    for (var i=0; i<12; i++) {
+    for (i=0; i<12; i++) {
         for (var j=0; j<12; j++) {
             gameLinkString += String(position[i][j]);
         }
     }
 
-    prompt('Copy link to clipboard (Ctrl+C)', gameLinkString);
+    if (moves.length > 0) {
+        gameLinkString += "&moves=";
+
+        for (i = 0; i < moves.length; i++) {
+            gameLinkString += String(moves[i]);
+
+            if (i < moves.length - 1) {
+                gameLinkString += ",";
+            }
+        }
+    }
+
+    prompt("Copy link to clipboard (Ctrl+C)", gameLinkString);
 }
 
 function generateStartPosition() {
@@ -271,7 +285,7 @@ function isGameOver() {
 
 function drawField(i, j, color) {
     drawingContext.beginPath();
-    drawingContext.rect(25*i+5, 300-25*(j+1)+5, 23, 23);
+    drawingContext.rect(25*i+6, 300-25*(j+1)+6, 23, 23);
     drawingContext.stroke();
 
     drawingContext.fillStyle = color;
@@ -356,6 +370,10 @@ function processClick(event) {
         collapseGroup();
         drawAllFields();
         updateScore();
+
+        // moves are base 12 coded, as maximal value of coordinates is 11 (0 - 11)
+        // this is no pain, but makes a game link a lot shorter!
+        moves.push(12*mousePos.x + mousePos.y);
     } else {
         activePosition[mousePos.x][mousePos.y] = fieldState;
     }
@@ -409,6 +427,7 @@ function prepareGame() {
 function startNewGame() {
     generateStartPosition();
     prepareGame();
+    moves = [];
     lastPlayedPositionIndex = -1;
     gameType = GameType.New;
 }
@@ -426,17 +445,12 @@ function replayStartPosition() {
     gameType = GameType.Replay;
 }
 
-function importGame(importMethod) {
-    var importedString;
+function importGame(importedString) {
+    var positionString = getQueryParams(importedString).position;
 
-    if (importMethod == ImportMethod.FromAddressBar)
-        importedString = getQueryParams(document.location.search).position;
-    else
-        importedString = prompt('Paste game link below').split('=')[1];
-
-    if (typeof importedString == "string") {
-        if (importedString.length == 144)
-            startPosition = stringToPosition(importedString);
+    if (typeof positionString == "string") {
+        if (positionString.length == 144)
+            startPosition = stringToPosition(positionString);
         else
             return;
     } else
@@ -467,6 +481,7 @@ function checkBrowser() {
             $(warningDiv).css("display", "inherit");
             return false;
         } else {
+            $(warningDiv).css("display", "none");
             $(".button, .icon").addClass("chrome");
         }
     }
@@ -479,6 +494,7 @@ function checkBrowser() {
             $(warningDiv).css("display", "inherit");
             return false;
         } else {
+            $(warningDiv).css("display", "none");
             $(".button, .icon").addClass("firefox");
         }
     }
@@ -506,7 +522,7 @@ function init() {
     gameType = GameType.New;
     gameState = GameState.Finished;
 
-    importGame(ImportMethod.FromAddressBar);
+    importGame(document.location.search);
 }
 
 $(document).ready(init);

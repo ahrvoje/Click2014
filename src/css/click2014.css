@@ -34,7 +34,6 @@ body:hover {cursor: default}
     width: 100%;
     min-height: 100%;
     font-family: Arial,serif;
-    font-weight: bold;
     display: -webkit-flex;
     display: -ms-flex;
     display: flex;
@@ -48,6 +47,14 @@ body:hover {cursor: default}
     display: flex;
 }
 
+#logo {
+    padding: 10px 0 0 60px;
+}
+
+#logoImage {
+    padding-right: 10px;
+}
+
 #mainFiller {
     -webkit-flex: 1;
     -ms-flex: 1;
@@ -55,13 +62,33 @@ body:hover {cursor: default}
 }
 
 #footer {
-    height: 20px;
-    text-align: right;
+    min-width: 100%;
     font-family: Arial, serif;
     font-weight: normal;
-    padding-right: 5px;
-    opacity: 0.2;
     align-self: flex-end;
+
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 5px;
+}
+
+#leftFooter, #rightFooter {
+    -webkit-flex: 0.5;
+    -ms-flex: 0.5;
+    flex: 0.5;
+}
+
+#leftFooter {
+    text-align: left;
+    padding-left: 10px;
+}
+
+#rightFooter {
+    opacity: 0.2;
+    text-align: right;
+    padding-right: 10px;
 }
 
 #game {
@@ -75,7 +102,6 @@ body:hover {cursor: default}
     -ms-flex: 0.5;
     flex: 0.5;
     font-size: 35px;
-    padding: 10px 0 0 60px;
     opacity: 1;
 }
 
@@ -84,11 +110,11 @@ body:hover {cursor: default}
 }
 
 #Warning {
-    height: 100px;
+    padding-top: 100px;
     color: black;
     font-size: 30px;
     text-align: center;
-    display: none;
+    display: inherit;
 }
 
 #gameCanvas {
@@ -122,6 +148,7 @@ body:hover {cursor: default}
 }
 
 .rowInnerDiv {
+    font-weight: bold;
     display: -webkit-flex;
     display: -ms-flex;
     display: flex;
@@ -158,13 +185,16 @@ body:hover {cursor: default}
 
 #startButtonDiv {
     height: 30px;
+    border-radius: 15px;
+    margin-top: 2px;
 }
 
 #startButton {
+    font-weight: normal;
     text-align: center;
     line-height: 30px;
     vertical-align: middle;
-    border-radius: 15px;
+    padding-top: 1px;
 }
 
 .replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
@@ -228,5 +258,4 @@ body:hover {cursor: default}
 #history {
     height: 180px;
     color: grey;
-    border-top: 1px dotted;
 }
