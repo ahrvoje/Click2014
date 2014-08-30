@@ -41,7 +41,7 @@ function HistoryItem(position, score, moves) {
 }
 
 var history = [], moves;
-var startPosition, activePosition, drawingCanvas, drawingContext;
+var startPosition, activePosition, currentMove, drawingCanvas, drawingContext;
 var startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
 var GameType = {New:0, Replay:1, Imported:2}, gameType;
@@ -107,9 +107,10 @@ function generateStartPosition() {
     }
 }
 
-function stringToPosition(positionString) {
-    var x, column=[], position=[];
+function stringToStartPosition(positionString) {
+    var x, column=[];
 
+    startPosition = [];
     for (var i=0; i<positionString.length; i++) {
         x = parseInt(positionString[i]);
 
@@ -120,12 +121,19 @@ function stringToPosition(positionString) {
         }
 
         if (i%12 == 11) {
-            position.push(column);
+            startPosition.push(column);
             column = [];
         }
     }
+}
 
-    return position;
+function stringToMoves(movesString) {
+    var list = movesString.split(',');
+
+    moves = [];
+    for (var i=0; i<list.length; i++) {
+        moves.push(eval(list[i]));
+    }
 }
 
 function markGroup(i, j, context) {
@@ -326,6 +334,33 @@ function updateScore() {
     return currentScore;
 }
 
+function playMove(x, y) {
+    var fieldState = activePosition[x][y];
+
+    // if clicked group is larger than a single field
+    if (markGroup(x, y) > 1) {
+        collapseGroup();
+        currentMove++;
+        return true;
+    } else {
+        activePosition[x][y] = fieldState;
+        return false;
+    }
+}
+
+function rewindToMove(move) {
+    if (move < 0 || move > moves.length) {
+        return;
+    }
+
+    activePosition = $.extend(true, [], startPosition);
+    currentMove = 0;
+
+    for (var i=0; i<move; i++) {
+        playMove(Math.floor(moves[i]/12), moves[i]%12);
+    }
+}
+
 function appendHistory(score) {
     historyPositions.unshift(startPosition);
     if (historyPositions.length > 6) {
@@ -363,19 +398,14 @@ function hideButtons() {
 
 function processClick(event) {
     var mousePos = getMousePos(event);
-    var fieldState = activePosition[mousePos.x][mousePos.y];
 
-    // if clicked group is larger than a single field
-    if (markGroup(mousePos.x, mousePos.y) > 1) {
-        collapseGroup();
+    if (playMove(mousePos.x, mousePos.y)) {
         drawAllFields();
         updateScore();
 
         // moves are base 12 coded, as maximal value of coordinates is 11 (0 - 11)
         // this is no pain, but makes a game link a lot shorter!
         moves.push(12*mousePos.x + mousePos.y);
-    } else {
-        activePosition[mousePos.x][mousePos.y] = fieldState;
     }
 
     if (isGameOver()) {
@@ -388,6 +418,24 @@ function processClick(event) {
 */
         showButtons();
     }
+}
+
+function processMouseWheel(event) {
+    // mouse wheel rewinding not enabled during active game playing
+    if (gameState == GameState.Active) {
+        return;
+    }
+
+    var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+
+    if (delta < 0) {
+        rewindToMove(currentMove+1);
+    } else {
+        rewindToMove(currentMove-1);
+    }
+
+    drawAllFields();
+    updateScore();
 }
 
 function onCanvasClick(event) {
@@ -420,8 +468,8 @@ function prepareGame() {
     activePosition = $.extend(true, [], startPosition);
     drawAllFields();
     $('#timeValue').text('');
-    $('#scoreValue').text('');
-    gameState = GameState.Ready;
+    $('#scoreValue').text(getGameScore());
+    currentMove = 0;
 }
 
 function startNewGame() {
@@ -430,12 +478,14 @@ function startNewGame() {
     moves = [];
     lastPlayedPositionIndex = -1;
     gameType = GameType.New;
+    gameState = GameState.Ready;
 }
 
 function replayHistoryPosition(positionIndex) {
     startPosition = $.extend(true, [], historyPositions[positionIndex]);
     prepareGame();
     lastPlayedPositionIndex = positionIndex;
+    gameState = GameState.Ready;
     gameType = GameType.Replay;
 }
 
@@ -443,19 +493,31 @@ function replayStartPosition() {
     prepareGame();
     lastPlayedPositionIndex = -1;
     gameType = GameType.Replay;
+    gameState = GameState.Ready;
 }
 
 function importGame(importedString) {
-    var positionString = getQueryParams(importedString).position;
+    var importParams = getQueryParams(importedString);
 
+    // import position
+    var positionString = importParams.position;
     if (typeof positionString == "string") {
         if (positionString.length == 144)
-            startPosition = stringToPosition(positionString);
+            stringToStartPosition(positionString);
         else
             return;
     } else
         return;
 
+    // import moves
+    var movesString = importParams.moves;
+    if (typeof movesString == "string") {
+        stringToMoves(movesString);
+        gameState = GameState.Finished;
+    } else {
+        gameState = GameState.Ready;
+    }
+    // initialize
     prepareGame();
     lastPlayedPositionIndex = -1;
     gameType = GameType.Imported;
