@@ -468,13 +468,30 @@ function processClick(event) {
     }
 }
 
-function processMouseWheel(event) {
+function extractWheelDelta(e) {
+    if (e.wheelDelta) {
+        return e.wheelDelta;
+    }
+
+    if (e.originalEvent.detail) {
+        return e.originalEvent.detail * -40;
+    }
+
+    if (e.originalEvent && e.originalEvent.wheelDelta) {
+        return e.originalEvent.wheelDelta;
+    }
+}
+
+function processMouseWheel(delta) {
     // mouse wheel rewinding not enabled during active game playing
     if (gameState == GameState.Active) {
         return;
     }
 
-    var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+    if (typeof delta == "undefined") {
+        alert("Mouse wheel delta type undefined!!");
+        return;
+    }
 
     if (delta < 0) {
         rewindToMove(currentMove+1);
@@ -604,6 +621,7 @@ function checkBrowser() {
         } else {
             $(warningDiv).css("display", "none");
             $(".button, .icon").addClass("chrome");
+            $("#gameCanvas").on("mousewheel", function(event){processMouseWheel(extractWheelDelta(event));});
         }
     }
 
@@ -617,6 +635,7 @@ function checkBrowser() {
         } else {
             $(warningDiv).css("display", "none");
             $(".button, .icon").addClass("firefox");
+            $("#gameCanvas").on("DOMMouseScroll", function(event){processMouseWheel(extractWheelDelta(event));});
         }
     }
 
