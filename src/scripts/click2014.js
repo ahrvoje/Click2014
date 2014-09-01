@@ -40,7 +40,7 @@ function HistoryItem(position, score, moves) {
 */
 }
 
-var history = [], moves;
+var history, moves, times;
 var startPosition, activePosition, currentMove, drawingCanvas, drawingContext;
 var startTime, updateTimerInterval, lastClickTime, lastPlayedPositionIndex;
 
@@ -90,6 +90,19 @@ function promptGameLink(positionIndex) {
         }
     }
 
+    if (times.length > 0) {
+        gameLinkString += "&times=";
+
+        // times are string coded by moves time differences
+        for (i = 1; i < times.length; i++) {
+            gameLinkString += String(times[i] - times[i-1]);
+
+            if (i < times.length - 1) {
+                gameLinkString += ",";
+            }
+        }
+    }
+
     prompt("Copy link to clipboard (Ctrl+C)", gameLinkString);
 }
 
@@ -133,6 +146,15 @@ function stringToMoves(movesString) {
     moves = [];
     for (var i=0; i<list.length; i++) {
         moves.push(eval(list[i]));
+    }
+}
+
+function stringToTimes(timesString) {
+    var list = timesString.split(',');
+
+    times = [0];
+    for (var i=0; i<list.length; i++) {
+        times.push(times[i] + eval(list[i]));
     }
 }
 
@@ -328,6 +350,21 @@ function updateTimer() {
     return currentTime;
 }
 
+function updateTimeText() {
+    var timeText;
+
+    if (currentMove == 0) {
+        timeText = "0";
+    } else {
+        if (times[currentMove - 1] == 0)
+            timeText = "0";
+        else
+            timeText = String(times[currentMove - 1] / 1000.);
+    }
+
+    $('#timeValue')[0].textContent = timeText;
+}
+
 function updateScore() {
     var currentScore = getGameScore();
     $('#scoreValue')[0].textContent = currentScore;
@@ -406,11 +443,22 @@ function processClick(event) {
         // moves are base 12 coded, as maximal value of coordinates is 11 (0 - 11)
         // this is no pain, but makes a game link a lot shorter!
         moves.push(12*mousePos.x + mousePos.y);
+
+        // time is expressed in milliseconds
+        // first move is always played at t=0
+        if (currentMove == 1) {
+            times.push(0);
+        } else {
+            times.push(((new Date()).getTime() - startTime));
+        }
     }
 
     if (isGameOver()) {
         gameState = GameState.Finished;
         clearInterval(updateTimerInterval);
+
+        // make sure timer shows exact time of the last move played
+        updateTimeText();
 /*
         if (gameType == GameType.New) {
             appendHistory([updateTimer(), updateScore()]);
@@ -436,6 +484,7 @@ function processMouseWheel(event) {
 
     drawAllFields();
     updateScore();
+    updateTimeText();
 }
 
 function onCanvasClick(event) {
@@ -445,7 +494,7 @@ function onCanvasClick(event) {
         hideButtons();
 
         lastClickTime = startTime = (new Date()).getTime();
-        updateTimerInterval = setInterval(updateTimer, 67);
+        updateTimerInterval = setInterval(updateTimer, 17);
         updateScore();
 
         gameState = GameState.Active;
@@ -467,8 +516,8 @@ function onCanvasClick(event) {
 function prepareGame() {
     activePosition = $.extend(true, [], startPosition);
     drawAllFields();
-    $('#timeValue').text('');
-    $('#scoreValue').text(getGameScore());
+    $("#timeValue").text("0");
+    $("#scoreValue").text(getGameScore());
     currentMove = 0;
 }
 
@@ -476,6 +525,7 @@ function startNewGame() {
     generateStartPosition();
     prepareGame();
     moves = [];
+    times = [];
     lastPlayedPositionIndex = -1;
     gameType = GameType.New;
     gameState = GameState.Ready;
@@ -491,6 +541,8 @@ function replayHistoryPosition(positionIndex) {
 
 function replayStartPosition() {
     prepareGame();
+    moves = [];
+    times = [];
     lastPlayedPositionIndex = -1;
     gameType = GameType.Replay;
     gameState = GameState.Ready;
@@ -517,6 +569,13 @@ function importGame(importedString) {
     } else {
         gameState = GameState.Ready;
     }
+
+    // import times
+    var timesString = importParams.times;
+    if (typeof timesString == "string") {
+        stringToTimes(timesString);
+    }
+
     // initialize
     prepareGame();
     lastPlayedPositionIndex = -1;

@@ -185,7 +185,6 @@ body:hover {cursor: default}
 
 #startButtonDiv {
     height: 30px;
-    border-radius: 15px;
     margin-top: 2px;
 }
 
@@ -195,6 +194,7 @@ body:hover {cursor: default}
     line-height: 30px;
     vertical-align: middle;
     padding-top: 1px;
+    border-radius: 15px;
 }
 
 .replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
