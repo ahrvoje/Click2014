@@ -111,7 +111,7 @@ Click.prototype = {
         } else {
             currentMoveTime = this.game.getCurrentMoveTime();
 
-            if (currentMoveTime === 0) {
+            if (currentMoveTime === undefined || currentMoveTime === 0) {
                 timeText = "0";
             } else {
                 timeText = String((currentMoveTime - this.game.startTime) / 1000.0);
@@ -218,8 +218,10 @@ Click.prototype = {
     },
 
     importGame: function (importedString) {
-        this.game = new Game(importedString);
-        this.prepareInterface();
+        if (importedString !== "" && importedString !== null) {
+            this.game = new Game(importedString);
+            this.prepareInterface();
+        }
     },
 
     checkBrowser: function () {

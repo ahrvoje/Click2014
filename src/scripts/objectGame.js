@@ -20,7 +20,13 @@ var Game = function (linkParamString) {
     this.currentPosition = [];
     this.generateMask();
 
-    this.fromLink(linkParamString);
+    if (linkParamString === undefined) {
+        this.generateNewPosition();
+        this.status = Game.Status.Ready;
+    } else {
+        this.status = Game.Status.Initial;
+        this.fromLink(linkParamString);
+    }
 
     this.currentMove = 0;
     this.startTime = 0;
@@ -32,16 +38,16 @@ Game.Status = {Initial: 0, Ready: 1, Play: 2, Over: 3};
 Game.prototype = {
 
     generateMask: function () {
-        var i, j, c;
+        var i, j, column;
 
         this.mask = [];
 
         for (i = 0; i < 12; i++) {
-            c = [];
+            column = [];
             for (j = 0; j < 12; j++) {
-                c.push(0);
+                column.push(0);
             }
-            this.mask.push(c);
+            this.mask.push(column);
         }
     },
 
@@ -64,28 +70,37 @@ Game.prototype = {
                     this.status = Game.Status.Ready;
 
                     if (linkParams.moves !== undefined) {
-                        this.stringToMoves(linkParams.moves);
+                        if (this.stringToMoves(linkParams.moves)) {
 
-                        if (this.isValid()) {
-                            this.status = Game.Status.Over;
-                            this.currentPosition = $.extend(true, [], this.startPosition);
+                            if (this.isValid()) {
+                                this.status = Game.Status.Over;
+                                this.currentPosition = $.extend(true, [], this.startPosition);
 
-                            if (linkParams.times !== undefined) {
-                                this.stringToTimes(linkParams.times);
+                                if (linkParams.times !== undefined) {
+                                    this.stringToTimes(linkParams.times);
+                                }
+                            } else {
+                                // game is NOT valid ! - reset everything
+                                this.startPosition = [];
+                                this.moves = [];
+                                this.status = Game.Status.Initial;
+                                return false;
                             }
                         } else {
-                            // game is NOT valid ! - reset everything
-                            this.startPosition = [];
-                            this.moves = [];
-                            this.status = Game.Status.Initial;
+                            return false;
                         }
                     }
+                } else {
+                    return false;
                 }
+            } else {
+                return false;
             }
         } else {
-            this.generateNewPosition();
-            this.status = Game.Status.Ready;
+            return false;
         }
+
+        return true;
     },
 
     generateNewPosition: function () {
@@ -146,13 +161,23 @@ Game.prototype = {
     },
 
     stringToMoves: function (movesString) {
-        var i, list = movesString.split(','), fieldCode;
+        var i, fieldCodes = movesString.split(','), fieldCode, x, y;
 
         this.moves = [];
-        for (i = 0; i < list.length; i++) {
-            fieldCode = parseInt(list[i], 10);
-            this.moves.push([Math.floor(fieldCode/12), fieldCode%12]);
+        for (i = 0; i < fieldCodes.length; i++) {
+            fieldCode = parseInt(fieldCodes[i], 10);
+
+            x = Math.floor(fieldCode/12);
+            y = fieldCode%12;
+
+            if (x < 0 || x > 11) {
+                return false;
+            }
+
+            this.moves.push([x,y]);
         }
+
+        return true;
     },
 
     stringToTimes: function (timesString) {
@@ -304,7 +329,9 @@ Game.prototype = {
     },
 
     getCurrentMoveTime: function () {
-        return this.times[this.currentMove - 1];
+        if (this.currentMove <= this.times.length) {
+            return this.times[this.currentMove - 1];
+        }
     },
 
     playMove: function (field) {
