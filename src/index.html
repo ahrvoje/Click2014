@@ -27,7 +27,10 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" href="css/click2014.css" />
     <script src="scripts/jquery-2.1.1.min.js"></script>
-    <script src="scripts/click2014.js"></script>
+    <script src="scripts/misc.js"></script>
+    <script src="scripts/objectGame.js"></script>
+    <script src="scripts/objectClick.js"></script>
+    <script src="scripts/Click2014.js"></script>
     <link rel="icon" type="image/png" href="images/click2014_favicon.png" />
 </head>
 <body>
@@ -36,26 +39,26 @@
         <div id="mainLeft"><div id="logo"><img id="logoImage" src="images/click2014_favicon.png">Click2014</div></div>
         <div id="Warning">Please use Chrome or Firefox browser!</div>
         <div id="game">
-            <canvas id="gameCanvas" width="310px" height="310px" onmousedown="onCanvasClick(event)"></canvas>
+            <canvas id="gameCanvas" width="310px" height="310px"></canvas>
 
-            <div id="startButtonDiv"><div id="startButton" class="button" onclick="startNewGame()">NEW GAME</div></div>
+            <div id="startButtonDiv"><div id="startButton" class="button">NEW GAME</div></div>
 
             <div class="rowDiv"> <div id="rowInnerDiv" class="rowInnerDiv">
                 <div class="leftDiv" id="timeText">Time:</div><div  id="timeValue" class="rightDiv timeValue"></div>
                 <div class="leftDiv" id="scoreText">Score:</div><div  id="scoreValue" class="rightDiv scoreValue"></div>
                 <div class="filler"></div>
                 <div class="importDiv" id="import">
-                    <div id="importButton" class="button importButton" onclick="importGame(prompt('Paste game link below'))">
+                    <div id="importButton" class="button importButton">
                         <img class='icon importIcon' src="images/import_icon_on.png" />
                     </div>
                 </div>
                 <div class="linkDiv" id="link">
-                    <div id="linkButton" class="button linkButton" onclick="promptGameLink(lastPlayedPositionIndex)">
+                    <div id="linkButton" class="button linkButton">
                         <img class='icon linkIcon' src="images/link_icon_on.png" />
                     </div>
                 </div>
                 <div class="replayDiv" id="replay">
-                    <div id="replayButton" class="button replayButton" onclick="replayStartPosition()">
+                    <div id="replayButton" class="button replayButton">
                         <img class='icon replayIcon' src="images/replay_icon_on.png" />
                     </div>
                 </div>
