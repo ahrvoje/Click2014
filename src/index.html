@@ -36,7 +36,14 @@
 <body>
 <div id="mainDiv">
     <div id="mainTop">
-        <div id="mainLeft"><div id="logo"><img id="logoImage" src="images/click2014_favicon.png">Click2014</div></div>
+        <div id="mainLeft">
+            <div id="logo"><img id="logoImage" src="images/click2014_favicon.png">Click2014</div>
+            <div id="gameExamples">
+                <div id="example0" class="example">Example 1</div>
+                <div id="example1" class="example">Example 2</div>
+                <div id="example2" class="example">Example 3</div>
+            </div>
+        </div>
         <div id="Warning">Please use Chrome or Firefox browser!</div>
         <div id="game">
             <canvas id="gameCanvas" width="310px" height="310px"></canvas>
@@ -47,6 +54,15 @@
                 <div class="leftDiv" id="timeText">Time:</div><div  id="timeValue" class="rightDiv timeValue"></div>
                 <div class="leftDiv" id="scoreText">Score:</div><div  id="scoreValue" class="rightDiv scoreValue"></div>
                 <div class="filler"></div>
+                <div class="leftDiv" id="moveText">Move:</div><div  id="moveValue" class="rightDiv moveValue"></div>
+            </div></div>
+            <div id="buttonsContainer">
+                <div class="filler"></div>
+                <div class="playDiv" id="play">
+                    <div id="playButton" class="button playButton">
+                        <img class='icon playIcon' src="images/play_icon_on.png" />
+                    </div>
+                </div>
                 <div class="importDiv" id="import">
                     <div id="importButton" class="button importButton">
                         <img class='icon importIcon' src="images/import_icon_on.png" />
@@ -62,7 +78,8 @@
                         <img class='icon replayIcon' src="images/replay_icon_on.png" />
                     </div>
                 </div>
-            </div></div>
+                <div class="filler"></div>
+            </div>
 
             <!-- <div id="history"></div> -->
         </div>

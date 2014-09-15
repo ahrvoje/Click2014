@@ -34,6 +34,7 @@ body:hover {cursor: default}
     width: 100%;
     min-height: 100%;
     font-family: Arial,serif;
+    font-size: 15px;
     display: -webkit-flex;
     display: -ms-flex;
     display: flex;
@@ -106,7 +107,21 @@ body:hover {cursor: default}
 }
 
 #mainLeft {
-    min-width: 250px;
+    min-width: 290px;
+}
+
+#gameExamples {
+    font-size: 20px;
+    margin-left: 180px;
+    margin-top: 100px;
+}
+
+.example {
+    margin-top: 10px;
+}
+
+.example:hover {
+    background-color: orange;
 }
 
 #Warning {
@@ -140,11 +155,16 @@ body:hover {cursor: default}
 }
 
 .timeValue {
-    width: 65px;
+    width: 70px;
 }
 
 .scoreValue {
     width: 35px;
+}
+
+.moveValue {
+    width: 50px;
+    text-align: right;
 }
 
 .rowInnerDiv {
@@ -158,7 +178,7 @@ body:hover {cursor: default}
     border-bottom: 1px dotted;
 }
 
-#timeText, #scoreText {
+#timeText, #scoreText, #moveText {
     color: black;
 }
 
@@ -169,6 +189,10 @@ body:hover {cursor: default}
 }
 
 /* BUTTONS */
+#buttonsContainer {
+    width: 310px;
+}
+
 .button {
     color: white;
     background-color: rgb(19, 121, 202);
@@ -197,24 +221,31 @@ body:hover {cursor: default}
     border-radius: 15px;
 }
 
-.replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
+.playDiv, .playButton, .replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
     line-height: 26px;
     border-radius: 13px;
 }
 
-.replayDiv, .linkDiv, .importDiv, .emptyButtonDiv {
+.playDiv, .replayDiv, .linkDiv, .importDiv, .emptyButtonDiv {
     width: 26px;
     padding: 4px 0 0 4px;
     display: inline-block;
 }
 
-.replayButton, .linkButton, .importButton {
+.playButton, .replayButton, .linkButton, .importButton {
     width: 26px;
     text-align: center;
 }
 
 .emptyButton {
     display: none;
+}
+
+.playIcon.chrome {
+    max-height: 90%;
+    max-width: 90%;
+    margin-left: 2px;
+    margin-bottom: -6px;
 }
 
 .importIcon.chrome {
@@ -232,7 +263,15 @@ body:hover {cursor: default}
 .replayIcon.chrome {
     max-height: 80%;
     max-width: 80%;
+    margin-left: 1px;
     margin-bottom: -4px;
+}
+
+.playIcon.firefox {
+    max-height: 90%;
+    max-width: 90%;
+    margin-left: 1px;
+    margin-bottom: -6.5px;
 }
 
 .importIcon.firefox {
@@ -251,7 +290,8 @@ body:hover {cursor: default}
 .replayIcon.firefox {
     max-height: 80%;
     max-width: 80%;
-    margin-bottom: -4.5px;
+    margin-left: -0.2px;
+    margin-bottom: -4.9px;
 }
 
 /* HISTORY */

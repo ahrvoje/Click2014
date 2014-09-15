@@ -7,280 +7,298 @@
  *
  * Date: Fri Aug 08, 2014
  */
-/* jshint strict:false */
-/*global $:false */
+/* jshint strict: false */
+/* global $: false */
+/* global extractWheelDelta: false */
 
-var Click = function () {
-    this.game = null;
-    this.drawingCanvas = null;
-    this.drawingContext = null;
-    this.updateTimerInterval = null;
-    this.lastClickTime = null;
-};
+var Click = (function () {
+    // private variables
+    var examples = ["?position=544341454153245551352111315534254113553554342242333515335513533415541542111541422113121311534345113215252332331311244443442542241513343551454125&moves=65,54,21,43,31,42,30,29,17,15,13,13,37,24,25,24,14,13,14,26,26,38,38,54,66,78,89,88,88,77,87,87,73,84,60,37,36,12,1,0,12&times=533,929,374,344,492,642,406,218,320,236,178,414,344,266,344,352,484,586,188,264,258,430,1242,336,679,611,217,455,358,321,171,524,273,235,905,180,406,414,156,320",
+                    "?position=544341454153245551352111315534254113553554342242333515335513533415541542111541422113121311534345113215252332331311244443442542241513343551454125&moves=22,45,44,31,42,30,30,29,17,5,4,13,13,25,24,24,39,50,39,38,51,36,49,49,48,60,48,24,37,38,51,61,52,61,61,49,49,24,36,26,14,25,0,0&times=169,172,360,149,156,180,180,171,180,188,509,250,468,287,197,836,298,406,186,422,282,304,156,281,251,290,203,984,187,1250,446,1062,774,374,148,492,766,142,452,282,313,280,149",
+                    "?position=325543113314113135211541443415522322133121452555454312541423142452333321342251314552432544244431224151231425333345115312311242234331554443232431&moves=34,19,29,20,6,17,14,17,27,26,13,61,62,61,61,62,61,60,52,84,84,60,63,60,60,49,49,49,36,12,12,12,13,25,12,41,51,39,52,52,51,51,39,49,36,24,25,24&times=529,648,453,202,172,462,562,373,697,366,1196,437,399,303,401,663,180,1186,1188,446,1203,414,524,290,492,616,704,242,446,156,296,367,407,467,1361,344,983,399,180,352,421,600,298,188,594,367,171"],
+        colors = ["#000000", "#FF0000", "#00BF00", "#0000FF", "#EFEF00", "#00DFFF", "#888888", "#FFCC66"],
+        game = null,
+        drawingCanvas = null,
+        drawingContext = null,
+        updateTimerInterval = null,
+        lastClickTime = null;
 
-Click.Colors = ["#000000", "#FF0000", "#00BF00", "#0000FF", "#EFEF00", "#00DFFF", "#888888", "#FFCC66"];
-Click.ImportMethod = {FromAddressBar:0, FromLink:1};
+    // private methods
+    var getMousePos = function (event) {
+            var rect = $('#gameCanvas')[0].getBoundingClientRect();
+            return {
+                x: Math.floor((event.clientX - rect.left - 5) / 25),
+                y: 11 - Math.floor((event.clientY - rect.top - 5) / 25)
+            };
+        },
 
-Click.prototype = {
+        drawField = function (i, j, color) {
+            drawingContext.beginPath();
+            drawingContext.rect(25 * i + 6, 300 - 25 * (j + 1) + 6, 23, 23);
+            drawingContext.stroke();
 
-    getMousePos: function (event) {
-        var rect = $('#gameCanvas')[0].getBoundingClientRect();
-        return {
-            x: Math.floor((event.clientX - rect.left - 5) / 25),
-            y: 11 - Math.floor((event.clientY - rect.top - 5) / 25)
-        };
-    },
+            drawingContext.fillStyle = color;
+            drawingContext.fill();
+        },
 
-    promptGameLink: function () {
-        window.prompt("Copy link to clipboard (Ctrl+C)",
-                String(document.location).split("?", 1)[0] + "?" + this.game.toLinkParamString());
-    },
+        highlightGroup = function (group) {
+            var i;
 
-    drawField: function (i, j, color) {
-        this.drawingContext.beginPath();
-        this.drawingContext.rect(25 * i + 6, 300 - 25 * (j + 1) + 6, 23, 23);
-        this.drawingContext.stroke();
+            drawingContext.strokeStyle = colors[7];
+            drawingContext.lineWidth = 4;
 
-        this.drawingContext.fillStyle = color;
-        this.drawingContext.fill();
-    },
+            for (i = 0; i < group.length; i++) {
+                drawField(group[i][0], group[i][1], colors[game.currentPosition[group[i][0]][group[i][1]]]);
+            }
+        },
 
-    highlightGroup: function (group) {
-        var i;
+        drawAllFields = function () {
+            var i, j, color, position;
 
-        this.drawingContext.strokeStyle = Click.Colors[7];
-        this.drawingContext.lineWidth = 4;
+            // clear canvas hack
+            drawingCanvas.width = drawingCanvas.width;
 
-        for (i = 0; i < group.length; i++) {
-            this.drawField(group[i][0], group[i][1], Click.Colors[this.game.currentPosition[group[i][0]][group[i][1]]]);
-        }
-    },
+            drawingContext.strokeStyle = colors[0];
+            drawingContext.lineWidth = 4;
 
-    drawAllFields: function () {
-        var i, j, color, position;
-
-        // clear canvas hack
-        this.drawingCanvas.width = this.drawingCanvas.width;
-
-        this.drawingContext.strokeStyle = Click.Colors[0];
-        this.drawingContext.lineWidth = 4;
-
-        if (this.game.status === Game.Status.Ready) {
-            position = this.game.startPosition;
-        } else if (this.game.status === Game.Status.Play || this.game.status === Game.Status.Over) {
-            position = this.game.currentPosition;
-        } else {
-            return;
-        }
-
-        for (i = 0; i < 12; i++) {
-            // stop drawing if you came to empty part
-            if (position[i][0] === 0) {
-                break;
+            if (game.status === game.StatusReady) {
+                position = game.startPosition;
+            } else if (game.status === game.StatusPlay || game.status === game.StatusOver) {
+                position = game.currentPosition;
+            } else {
+                return;
             }
 
-            for (j = 0; j < 12; j++) {
-                color = position[i][j];
+            for (i = 0; i < 12; i++) {
+                // stop drawing if you came to empty part
+                if (position[i][0] === 0) {
+                    break;
+                }
 
-                // stop drawing this column if you came to empty part
-                if (color > 0 && color < Click.Colors.length) {
-                    this.drawField(i, j, Click.Colors[color]);
-                } else {
-                    this.drawField(i, j, Click.Colors[0]);
+                for (j = 0; j < 12; j++) {
+                    color = position[i][j];
+
+                    // stop drawing this column if you came to empty part
+                    if (color === 0) {
+                        break;
+                    }
+
+                    drawField(i, j, colors[color]);
                 }
             }
-        }
 
-        if (this.game.status === Game.Status.Over) {
-            var nextMoveGroup = this.game.getNextMoveGroup();
-            this.highlightGroup(nextMoveGroup);
-        }
-    },
+            if (game.status === game.StatusOver) {
+                var nextMoveGroup = game.getNextMoveGroup();
+                highlightGroup(nextMoveGroup);
+            }
+        },
 
-    updateTimer: function () {
-        var currentTime = (new Date().getTime() - this.game.startTime) / 1000.0;
-        $('#timeValue')[0].textContent = String(currentTime);
-        return currentTime;
-    },
+        updateTimer = function () {
+            var currentTime = (new Date().getTime() - game.startTime) / 1000.0;
+            $('#timeValue')[0].textContent = String(currentTime);
+            return currentTime;
+        },
 
-    updateTimeText: function () {
-        var timeText, currentMoveTime;
+        updateTimeText = function () {
+            var timeText, currentMoveTime;
 
-        if (this.game.currentMove === 0) {
-            timeText = "0";
-        } else {
-            currentMoveTime = this.game.getCurrentMoveTime();
-
-            if (currentMoveTime === undefined || currentMoveTime === 0) {
+            if (game.currentMove === 0) {
                 timeText = "0";
             } else {
-                timeText = String((currentMoveTime - this.game.startTime) / 1000.0);
-            }
-        }
+                currentMoveTime = game.getCurrentMoveTime();
 
-        $('#timeValue')[0].textContent = timeText;
-    },
-
-    updateScore: function () {
-        var currentScore = this.game.getScore();
-        $('#scoreValue')[0].textContent = currentScore;
-        return currentScore;
-    },
-
-    showButtons: function () {
-        $(".button").css("display", "inherit");
-    },
-
-    hideButtons: function () {
-        $(".button").css("display", "none");
-    },
-
-    processClick: function (event) {
-        var mousePos = this.getMousePos(event);
-
-        if (this.game.playMove([mousePos.x, mousePos.y])) {
-            this.drawAllFields();
-            this.updateScore();
-        }
-
-        if (this.game.status === Game.Status.Over) {
-            clearInterval(this.updateTimerInterval);
-
-            // make sure timer shows exact time of the last move played
-            this.updateTimeText();
-            this.showButtons();
-        }
-    },
-
-    processMouseWheel: function (delta) {
-        // mouse wheel rewinding enabled only for finished games
-        if (this.game.status !== Game.Status.Over) {
-            return;
-        }
-
-        if (delta === undefined) {
-            return;
-        }
-
-        if (delta < 0) {
-            this.game.rewindToMove(this.game.currentMove + 1);
-        } else {
-            this.game.rewindToMove(this.game.currentMove - 1);
-        }
-
-        this.drawAllFields();
-        this.updateScore();
-        this.updateTimeText();
-    },
-
-    onCanvasClick: function (event) {
-        var firstClick = false;
-
-        if (this.game.status === Game.Status.Ready) {
-            this.hideButtons();
-
-            this.game.start();
-            this.lastClickTime = this.game.startTime;
-
-            var that = this;
-            this.updateTimerInterval = setInterval(function () {that.updateTimer();}, 17);
-            this.updateScore();
-
-            firstClick = true;
-        }
-
-        if (this.game.status === Game.Status.Play) {
-            var currentTime = new Date().getTime();
-
-            // minimal double click time 5ms
-            if (firstClick || currentTime - this.lastClickTime > 5) {
-                this.processClick(event);
+                if (currentMoveTime === undefined || currentMoveTime === 0) {
+                    timeText = "0";
+                } else {
+                    timeText = String((currentMoveTime - game.startTime) / 1000.0);
+                }
             }
 
-            this.lastClickTime = currentTime;
-        }
-    },
+            $('#timeValue')[0].textContent = timeText;
+        },
 
-    prepareInterface: function () {
-        this.drawAllFields();
-        $("#timeValue").text("0");
-        $("#scoreValue").text(this.game.getScore());
-    },
+        updateScore = function () {
+            var currentScore = game.getScore();
+            $('#scoreValue')[0].textContent = currentScore;
+            return currentScore;
+        },
 
-    startNewGame: function () {
-        this.game = new Game();
-        this.prepareInterface();
-    },
+        updateMove = function () {
+            $('#moveValue')[0].textContent = game.currentMove + " / " + game.moves.length;
+        },
 
-    replayStartPosition: function () {
-        this.game.replay();
-        this.prepareInterface();
-    },
+        showButtons = function () {
+            $(".button").css("display", "inherit");
+        },
 
-    importGame: function (importedString) {
-        if (importedString !== "" && importedString !== null) {
-            this.game = new Game(importedString);
-            this.prepareInterface();
-        }
-    },
+        hideButtons = function () {
+            $(".button").css("display", "none");
+        },
 
-    checkBrowser: function () {
-        var that = this;
-        var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome") > -1);
-        var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox") > -1);
+        prepareInterface = function () {
+            drawAllFields();
+            $("#timeValue").text("0");
+            $("#scoreValue").text(game.getScore());
+            $("#moveValue").text("0 / " + game.moves.length);
+        },
 
-        var warningDiv = $("#Warning");
+        gameFromString = function (gameString) {
+            game = new Game(gameString);
+            prepareInterface();
+        },
 
-        if (!isChrome && !isFirefox) {
-            $(warningDiv).text("Please use Chrome or Firefox browser!");
-            $(warningDiv).css("display", "inherit");
-            return false;
-        }
+        processClick = function (event) {
+            var mousePos = getMousePos(event);
 
-        if (isChrome) {
-            var chromeVersion = parseInt(navigator.userAgent.match(/Chrome\/(\d+)\./)[1], 10);
+            if (game.playMove([mousePos.x, mousePos.y])) {
+                drawAllFields();
+                updateScore();
+                updateMove();
+            }
 
-            if (chromeVersion < 33) {
-                $(warningDiv).text("Please use Chrome 33 or newer!");
+            if (game.status === game.StatusOver) {
+                clearInterval(updateTimerInterval);
+
+                // make sure timer shows exact time of the last move played
+                updateTimeText();
+                showButtons();
+            }
+        },
+
+        processMouseWheel = function (delta) {
+            // mouse wheel rewinding enabled only for finished games
+            if (game.status !== game.StatusOver) {
+                return;
+            }
+
+            if (delta === undefined) {
+                return;
+            }
+
+            if (delta < 0) {
+                game.rewindToMove(game.currentMove + 1);
+            } else {
+                game.rewindToMove(game.currentMove - 1);
+            }
+
+            drawAllFields();
+            updateScore();
+            updateMove();
+            updateTimeText();
+        },
+
+        checkBrowser = function () {
+            var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome") > -1);
+            var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox") > -1);
+
+            var warningDiv = $("#Warning");
+
+            if (!isChrome && !isFirefox) {
+                $(warningDiv).text("Please use Chrome or Firefox browser!");
                 $(warningDiv).css("display", "inherit");
                 return false;
             }
 
-            $(warningDiv).css("display", "none");
-            $(".button, .icon").addClass("chrome");
-            $("#gameCanvas").on("mousewheel", function (event) {
-                that.processMouseWheel(extractWheelDelta(event));
-            });
-        }
+            if (isChrome) {
+                var chromeVersion = parseInt(navigator.userAgent.match(/Chrome\/(\d+)\./)[1], 10);
 
-        if (isFirefox) {
-            var firefoxVersion = parseInt(navigator.userAgent.match(/Firefox\/(\d+)\./)[1], 10);
+                if (chromeVersion < 33) {
+                    $(warningDiv).text("Please use Chrome 33 or newer!");
+                    $(warningDiv).css("display", "inherit");
+                    return false;
+                }
 
-            if (firefoxVersion < 30) {
-                $(warningDiv).text("Please use Firefox 30 or newer!");
-                $(warningDiv).css("display", "inherit");
-                return false;
+                $(warningDiv).css("display", "none");
+                $(".button, .icon").addClass("chrome");
+                $("#gameCanvas").on("mousewheel", function (event) {
+                    processMouseWheel(extractWheelDelta(event));
+                });
             }
 
-            $(warningDiv).css("display", "none");
-            $(".button, .icon").addClass("firefox");
+            if (isFirefox) {
+                var firefoxVersion = parseInt(navigator.userAgent.match(/Firefox\/(\d+)\./)[1], 10);
 
-            $("#gameCanvas").on("DOMMouseScroll", function (event) {
-                that.processMouseWheel(extractWheelDelta(event));
-            });
+                if (firefoxVersion < 30) {
+                    $(warningDiv).text("Please use Firefox 30 or newer!");
+                    $(warningDiv).css("display", "inherit");
+                    return false;
+                }
+
+                $(warningDiv).css("display", "none");
+                $(".button, .icon").addClass("firefox");
+
+                $("#gameCanvas").on("DOMMouseScroll", function (event) {
+                    processMouseWheel(extractWheelDelta(event));
+                });
+            }
+
+            return true;
+        };
+
+    // public (API) methods
+    return {
+        promptGameLink: function () {
+            window.prompt("Copy link to clipboard (Ctrl+C)",
+                    String(document.location).split("?", 1)[0] + "?" + game.toLinkParamString());
+        },
+
+        onCanvasClick: function (event) {
+            var firstClick = false;
+
+            if (game.status === game.StatusReady) {
+                hideButtons();
+
+                game.start();
+                lastClickTime = game.startTime;
+
+                updateTimerInterval = setInterval(updateTimer, 17);
+                updateScore();
+
+                firstClick = true;
+            }
+
+            if (game.status === game.StatusPlay) {
+                var currentTime = new Date().getTime();
+
+                // minimal double click time 5ms
+                if (firstClick || currentTime - lastClickTime > 5) {
+                    processClick(event);
+                }
+
+                lastClickTime = currentTime;
+            }
+        },
+
+        startNewGame: function () {
+            gameFromString();
+        },
+
+        replayStartPosition: function () {
+            game.replay();
+            prepareInterface();
+        },
+
+        importGame: function (importedString) {
+            if (importedString !== "" && importedString !== null) {
+                gameFromString(importedString);
+            }
+        },
+
+        loadExample: function (exampleIndex) {
+            if (exampleIndex >= 0 && exampleIndex < examples.length) {
+                gameFromString(examples[exampleIndex]);
+            }
+        },
+
+        init: function () {
+            if (!checkBrowser()) {
+                return;
+            }
+
+            drawingCanvas = $("#gameCanvas")[0];
+            drawingContext = drawingCanvas.getContext("2d");
+
+            gameFromString(document.location.search);
         }
-
-        return true;
-    },
-
-    init: function () {
-        if (!this.checkBrowser()) {
-            return;
-        }
-
-        this.drawingCanvas = $("#gameCanvas")[0];
-        this.drawingContext = this.drawingCanvas.getContext("2d");
-
-        this.importGame(document.location.search);
-    }
-};
+    };
+} () );

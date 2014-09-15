@@ -12,7 +12,7 @@
 
 // Game object
 var Game = function (linkParamString) {
-    this.status = Game.Status.Initial;
+    this.status = this.StatusInitial;
 
     this.moves = [];
     this.times = [];
@@ -22,9 +22,9 @@ var Game = function (linkParamString) {
 
     if (linkParamString === undefined) {
         this.generateNewPosition();
-        this.status = Game.Status.Ready;
+        this.status = this.StatusReady;
     } else {
-        this.status = Game.Status.Initial;
+        this.status = this.StatusInitial;
         this.fromLink(linkParamString);
     }
 
@@ -33,9 +33,14 @@ var Game = function (linkParamString) {
     this.error = 0;
 };
 
-Game.Status = {Initial: 0, Ready: 1, Play: 2, Over: 3};
-
 Game.prototype = {
+
+    // game status
+    StatusInitial: 0,
+    StatusReady:1,
+    StatusPlay: 2,
+    StatusOver: 3,
+    StatusReplay: 4,
 
     generateMask: function () {
         var i, j, column;
@@ -67,13 +72,13 @@ Game.prototype = {
 
             if (linkParams.position !== undefined) {
                 if (this.stringToPosition(linkParams.position)) {
-                    this.status = Game.Status.Ready;
+                    this.status = this.StatusReady;
 
                     if (linkParams.moves !== undefined) {
                         if (this.stringToMoves(linkParams.moves)) {
 
                             if (this.isValid()) {
-                                this.status = Game.Status.Over;
+                                this.status = this.StatusOver;
                                 this.currentPosition = $.extend(true, [], this.startPosition);
 
                                 if (linkParams.times !== undefined) {
@@ -83,7 +88,7 @@ Game.prototype = {
                                 // game is NOT valid ! - reset everything
                                 this.startPosition = [];
                                 this.moves = [];
-                                this.status = Game.Status.Initial;
+                                this.status = this.StatusInitial;
                                 return false;
                             }
                         } else {
@@ -120,7 +125,7 @@ Game.prototype = {
     start: function () {
         this.currentPosition = $.extend(true, [], this.startPosition);
         this.startTime = new Date().getTime();
-        this.status = Game.Status.Play;
+        this.status = this.StatusPlay;
     },
 
     replay: function () {
@@ -128,7 +133,7 @@ Game.prototype = {
         this.moves = [];
         this.times = [];
         this.currentMove = 0;
-        this.status = Game.Status.Ready;
+        this.status = this.StatusReady;
     },
 
     stringToPosition: function (positionString) {
@@ -346,7 +351,7 @@ Game.prototype = {
         this.collapseGroup();
         this.currentMove++;
 
-        if (this.status === Game.Status.Play) {
+        if (this.status === this.StatusPlay) {
             // moves are base 12 coded, as maximal value of coordinates is 11 (0 - 11)
             // this is no pain and makes game link a lot shorter!
             this.addMove(field);
@@ -358,7 +363,7 @@ Game.prototype = {
             }
 
             if (this.isOver()) {
-                this.status = Game.Status.Over;
+                this.status = this.StatusOver;
             }
         }
 
@@ -385,7 +390,7 @@ Game.prototype = {
     getScore: function () {
         var i, j, position, score = 0;
 
-        if (this.status === Game.Status.Initial) {
+        if (this.status === this.StatusInitial) {
             position = this.startPosition;
         } else {
             position = this.currentPosition;
