@@ -111,13 +111,20 @@ body:hover {cursor: default}
 }
 
 #gameExamples {
+    width: 95px;
     font-size: 20px;
     margin-left: 180px;
     margin-top: 100px;
+    border-style: dotted;
+    border-width: 1px;
+    border-color: red;
+    border-radius: 5px;
 }
 
 .example {
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 95px;
 }
 
 .example:hover {
@@ -191,6 +198,20 @@ body:hover {cursor: default}
 /* BUTTONS */
 #buttonsContainer {
     width: 310px;
+    padding: 4px 0 0 0;
+    display: flex;
+}
+
+.buttonFillerIn {
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+}
+
+.buttonFillerOut {
+    -webkit-flex: 3;
+    -ms-flex: 3;
+    flex: 3;
 }
 
 .button {
@@ -228,7 +249,6 @@ body:hover {cursor: default}
 
 .playDiv, .replayDiv, .linkDiv, .importDiv, .emptyButtonDiv {
     width: 26px;
-    padding: 4px 0 0 4px;
     display: inline-block;
 }
 

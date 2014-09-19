@@ -40,7 +40,7 @@ Game.prototype = {
     StatusReady:1,
     StatusPlay: 2,
     StatusOver: 3,
-    StatusReplay: 4,
+    StatusAutoPlay: 4,
 
     generateMask: function () {
         var i, j, column;
@@ -368,6 +368,12 @@ Game.prototype = {
         }
 
         return true;
+    },
+
+    playNextMove: function () {
+        if (this.currentMove < this.moves.length) {
+            this.playMove(this.moves[this.currentMove]);
+        }
     },
 
     rewindToMove: function (moveIndex) {

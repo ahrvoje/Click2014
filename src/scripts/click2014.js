@@ -22,6 +22,7 @@ $(document).ready(function () {
     // event listeners
     $("#startButton").click(function(){Click.startNewGame();});
     $("#gameCanvas").mousedown(function(event){Click.onCanvasClick(event);});
+    $("#playButton").click(function(){Click.autoPlay();});
     $("#importButton").click(function(){Click.importGame(window.prompt('Paste game link below'));});
     $("#linkButton").click(function(){Click.promptGameLink();});
     $("#replayButton").click(function(){Click.replayStartPosition();});
