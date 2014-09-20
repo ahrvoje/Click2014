@@ -120,7 +120,7 @@ var Click = (function () {
                 if (currentMoveTime === undefined || currentMoveTime === 0) {
                     timeText = "0";
                 } else {
-                    timeText = String((currentMoveTime - game.startTime) / 1000.0);
+                    timeText = String(currentMoveTime / 1000.0);
                 }
             }
 
@@ -153,7 +153,8 @@ var Click = (function () {
             $("#timeValue").text("0");
             $("#scoreValue").text(game.getScore());
             $("#moveValue").text("0 / " + game.moves.length);
-            $(".playIcon").attr("src", "images/play_icon_on.png");
+            $(".playIcon").show();
+            $(".pauseIcon").hide();
         },
 
         gameFromString = function (gameString) {
@@ -214,9 +215,10 @@ var Click = (function () {
 
             if (game.currentMove === game.moves.length) {
                 clearInterval(autoPlayTimerInterval);
-                game.status = game.StatusOver;
+                $(".playIcon").show();
+                $(".pauseIcon").hide();
                 updateTimeText();
-                $(".playIcon").attr("src", "images/play_icon_on.png");
+                game.status = game.StatusOver;
             }
         },
 
@@ -325,15 +327,17 @@ var Click = (function () {
                     autoPlayGameStartTime = 0;
                 }
 
-                autoPlaySystemStartTime = new Date().getTime();
+                $(".playIcon").hide();
+                $(".pauseIcon").show();
                 autoPlayTimerInterval = setInterval(autoPlayMove, 10);
+                autoPlaySystemStartTime = new Date().getTime();
                 game.status = game.StatusAutoPlay;
-                $(".playIcon").attr("src", "images/pause_icon_on.png");
             } else if (game.status === game.StatusAutoPlay) {
+                $(".playIcon").show();
+                $(".pauseIcon").hide();
                 clearInterval(autoPlayTimerInterval);
                 updateTimeText();
                 game.status = game.StatusOver;
-                $(".playIcon").attr("src", "images/play_icon_on.png");
             }
         },
 

@@ -357,9 +357,9 @@ Game.prototype = {
             this.addMove(field);
 
             if (this.currentMove !== 1) {
-                this.addTime(new Date().getTime());
+                this.addTime(new Date().getTime() - this.startTime);
             } else {
-                this.addTime(this.startTime);
+                this.addTime(0);
             }
 
             if (this.isOver()) {
