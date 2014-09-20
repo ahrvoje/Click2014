@@ -397,6 +397,10 @@ Game.prototype = {
         var i, j, position, score = 0;
 
         if (this.status === this.StatusInitial) {
+            return 0;
+        }
+
+        if (this.status === this.StatusReady) {
             position = this.startPosition;
         } else {
             position = this.currentPosition;

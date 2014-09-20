@@ -242,17 +242,17 @@ body:hover {cursor: default}
     border-radius: 15px;
 }
 
-.playDiv, .playButton, .replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
+.autoPlayDiv, .autoPlayButton, .replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
     line-height: 26px;
     border-radius: 13px;
 }
 
-.playDiv, .replayDiv, .linkDiv, .importDiv, .emptyButtonDiv {
+.autoPlayDiv, .replayDiv, .linkDiv, .importDiv, .emptyButtonDiv {
     width: 26px;
     display: inline-block;
 }
 
-.playButton, .replayButton, .linkButton, .importButton {
+.autoPlayButton, .replayButton, .linkButton, .importButton {
     width: 26px;
     text-align: center;
 }

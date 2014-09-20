@@ -146,10 +146,14 @@ var Click = (function () {
         },
 
         prepareInterface = function () {
+            clearInterval(updateTimerInterval);
+            clearInterval(autoPlayTimerInterval);
+            showButtons();
             drawAllFields();
             $("#timeValue").text("0");
             $("#scoreValue").text(game.getScore());
             $("#moveValue").text("0 / " + game.moves.length);
+            $(".playIcon").attr("src", "images/play_icon_on.png");
         },
 
         gameFromString = function (gameString) {
@@ -198,9 +202,8 @@ var Click = (function () {
         },
 
         autoPlayMove = function () {
-            updateTimer();
-
             var autoPlayTime = new Date().getTime() - autoPlaySystemStartTime + autoPlayGameStartTime;
+            updateTimer();
 
             if (autoPlayTime >= game.times[game.currentMove]) {
                 game.playNextMove();
@@ -213,7 +216,7 @@ var Click = (function () {
                 clearInterval(autoPlayTimerInterval);
                 game.status = game.StatusOver;
                 updateTimeText();
-                showButtons();
+                $(".playIcon").attr("src", "images/play_icon_on.png");
             }
         },
 
@@ -309,26 +312,29 @@ var Click = (function () {
         },
 
         autoPlay: function () {
-            // exit if game is not Over (prepared to be replayed)
-            if (game.status !== game.StatusOver) {
-                return;
-            }
+            // if game is Over and it can be autoPlayed
+            if (game.status === game.StatusOver) {
+                // exit if game is already at the end
+                if (game.currentMove === game.moves.size) {
+                    return;
+                }
 
-            // exit if game is already at the end
-            if (game.currentMove === game.moves.size) {
-                return;
-            }
+                if (game.currentMove > 0) {
+                    autoPlayGameStartTime = game.times[game.currentMove - 1];
+                } else {
+                    autoPlayGameStartTime = 0;
+                }
 
-            if (game.currentMove > 0) {
-                autoPlayGameStartTime = game.times[game.currentMove - 1];
-            } else {
-                autoPlayGameStartTime = 0;
+                autoPlaySystemStartTime = new Date().getTime();
+                autoPlayTimerInterval = setInterval(autoPlayMove, 10);
+                game.status = game.StatusAutoPlay;
+                $(".playIcon").attr("src", "images/pause_icon_on.png");
+            } else if (game.status === game.StatusAutoPlay) {
+                clearInterval(autoPlayTimerInterval);
+                updateTimeText();
+                game.status = game.StatusOver;
+                $(".playIcon").attr("src", "images/play_icon_on.png");
             }
-
-            autoPlaySystemStartTime = new Date().getTime();
-            autoPlayTimerInterval = setInterval(autoPlayMove, 10);
-            game.status = game.StatusAutoPlay;
-            hideButtons();
         },
 
         importGame: function (importedString) {
