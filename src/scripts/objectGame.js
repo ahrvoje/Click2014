@@ -8,142 +8,87 @@
  * Date: Sat Sep 06, 2014
  */
 /* jshint strict:false */
-/*global $:false */
+/* jslint nomen: true */
+/* global $:false */
+/* global getQueryParams:false */
 
 // Game object
 var Game = function (linkParamString) {
-    this.status = this.StatusInitial;
+    // private variables
+    var
+    Status = {Initial: 0, Ready: 1, Play: 2, Over: 3, AutoPlay: 4},
+    status = Status.Initial,
+    moves = [],
+    times = [],
+    startPosition = [],
+    currentPosition = [],
+    mask = [],
+    currentMove = null,
+    startTime = null,
+    error = null;
 
-    this.moves = [];
-    this.times = [];
-    this.startPosition = [];
-    this.currentPosition = [];
-    this.generateMask();
-
-    if (linkParamString === undefined) {
-        this.generateNewPosition();
-        this.status = this.StatusReady;
-    } else {
-        this.status = this.StatusInitial;
-        this.fromLink(linkParamString);
-    }
-
-    this.currentMove = 0;
-    this.startTime = 0;
-    this.error = 0;
-};
-
-Game.prototype = {
-
-    // game status
-    StatusInitial: 0,
-    StatusReady:1,
-    StatusPlay: 2,
-    StatusOver: 3,
-    StatusAutoPlay: 4,
-
-    generateMask: function () {
+    // private methods
+    var
+    generateMask = function () {
         var i, j, column;
 
-        this.mask = [];
+        mask = [];
 
         for (i = 0; i < 12; i++) {
             column = [];
             for (j = 0; j < 12; j++) {
                 column.push(0);
             }
-            this.mask.push(column);
+            mask.push(column);
         }
     },
 
-    clearMask: function () {
+    clearMask = function () {
         var i, j;
 
         for (i = 0; i < 12; i++) {
             for (j = 0; j < 12; j++) {
-                this.mask[i][j] = 0;
+                mask[i][j] = 0;
             }
         }
     },
 
-    fromLink: function (linkParamString) {
-        if (typeof linkParamString === "string") {
-            var linkParams = getQueryParams(linkParamString);
-
-            if (linkParams.position !== undefined) {
-                if (this.stringToPosition(linkParams.position)) {
-                    this.status = this.StatusReady;
-
-                    if (linkParams.moves !== undefined) {
-                        if (this.stringToMoves(linkParams.moves)) {
-
-                            if (this.isValid()) {
-                                this.status = this.StatusOver;
-                                this.currentPosition = $.extend(true, [], this.startPosition);
-
-                                if (linkParams.times !== undefined) {
-                                    this.stringToTimes(linkParams.times);
-                                }
-                            } else {
-                                // game is NOT valid ! - reset everything
-                                this.startPosition = [];
-                                this.moves = [];
-                                this.status = this.StatusInitial;
-                                return false;
-                            }
-                        } else {
-                            return false;
-                        }
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        return true;
-    },
-
-    generateNewPosition: function () {
+    generateNewPosition = function () {
         var i, j, column;
 
-        this.startPosition = [];
+        startPosition = [];
         for (i = 0; i < 12; i++) {
             column = [];
             for (j = 0; j < 12; j++) {
                 column.push(Math.floor(Math.random() * 5) + 1);
             }
 
-            this.startPosition.push(column);
+            startPosition.push(column);
         }
     },
 
-    start: function () {
-        this.currentPosition = $.extend(true, [], this.startPosition);
-        this.startTime = new Date().getTime();
-        this.status = this.StatusPlay;
+    startGame = function () {
+        currentPosition = $.extend(true, [], startPosition);
+        startTime = new Date().getTime();
+        status = Status.Play;
     },
 
-    replay: function () {
-        this.currentPosition = [];
-        this.moves = [];
-        this.times = [];
-        this.currentMove = 0;
-        this.status = this.StatusReady;
+    replay = function () {
+        currentPosition = [];
+        moves = [];
+        times = [];
+        currentMove = 0;
+        status = Status.Ready;
     },
 
-    stringToPosition: function (positionString) {
+    stringToPosition = function (positionString) {
         var i, x, column;
 
         if (positionString.length !== 144) {
             return false;
         }
 
-        this.startPosition = [];
+        startPosition = [];
         for (i = 0; i < positionString.length; i++) {
             if (i % 12 === 0) {
                 column = [];
@@ -158,17 +103,17 @@ Game.prototype = {
             }
 
             if (i % 12 === 11) {
-                this.startPosition.push(column);
+                startPosition.push(column);
             }
         }
 
         return true;
     },
 
-    stringToMoves: function (movesString) {
+    stringToMoves = function (movesString) {
         var i, fieldCodes = movesString.split(','), fieldCode, x, y;
 
-        this.moves = [];
+        moves = [];
         for (i = 0; i < fieldCodes.length; i++) {
             fieldCode = parseInt(fieldCodes[i], 10);
 
@@ -179,113 +124,114 @@ Game.prototype = {
                 return false;
             }
 
-            this.moves.push([x,y]);
+            moves.push([x,y]);
         }
 
         return true;
     },
 
-    stringToTimes: function (timesString) {
+    stringToTimes = function (timesString) {
         var i, list = timesString.split(',');
 
-        this.times = [0];
+        times = [0];
         for (i = 0; i < list.length; i++) {
-            this.times.push(this.times[i] + Number(list[i]));
+            times.push(times[i] + Number(list[i]));
         }
     },
 
-    extractGroup: function (field, context) {
+    extractGroup = function (field, context) {
         var x = field[0], y = field[1];
 
         if (context === undefined) {
             // static variable equivalents
-            this.extractGroup.refColor = this.currentPosition[x][y];
-            this.extractGroup.group = [];
+            extractGroup.refColor = currentPosition[x][y];
+            extractGroup.group = [];
+            clearMask(); // already should be clean, but just in case
 
             // if field is empty
-            if (this.extractGroup.refColor === 0) {
-                return this.extractGroup.group;
+            if (extractGroup.refColor === 0) {
+                return extractGroup.group;
             }
         }
 
-        this.extractGroup.group.push([x, y]);
-        this.mask[x][y] = 1;
+        extractGroup.group.push([x, y]);
+        mask[x][y] = 1;
 
         if (x > 0) {
-            if (this.currentPosition[x - 1][y] === this.extractGroup.refColor && this.mask[x - 1][y] === 0) {
-                this.extractGroup([x - 1, y], true);
+            if (currentPosition[x - 1][y] === extractGroup.refColor && mask[x - 1][y] === 0) {
+                extractGroup([x - 1, y], true);
             }
         }
 
         if (x < 11) {
-            if (this.currentPosition[x + 1][y] === this.extractGroup.refColor && this.mask[x + 1][y] === 0) {
-                this.extractGroup([x + 1, y], true);
+            if (currentPosition[x + 1][y] === extractGroup.refColor && mask[x + 1][y] === 0) {
+                extractGroup([x + 1, y], true);
             }
         }
 
         if (y > 0) {
-            if (this.currentPosition[x][y - 1] === this.extractGroup.refColor && this.mask[x][y - 1] === 0) {
-                this.extractGroup([x, y - 1], true);
+            if (currentPosition[x][y - 1] === extractGroup.refColor && mask[x][y - 1] === 0) {
+                extractGroup([x, y - 1], true);
             }
         }
 
         if (y < 11) {
-            if (this.currentPosition[x][y + 1] === this.extractGroup.refColor && this.mask[x][y + 1] === 0) {
-                this.extractGroup([x, y + 1], true);
+            if (currentPosition[x][y + 1] === extractGroup.refColor && mask[x][y + 1] === 0) {
+                extractGroup([x, y + 1], true);
             }
         }
 
         if (context === undefined) {
-            this.clearMask();
-            return this.extractGroup.group;
+            clearMask();
+            return extractGroup.group;
         }
     },
 
-    getNextMoveGroup: function () {
-        if (this.currentMove < this.moves.length) {
-            return this.extractGroup(this.moves[this.currentMove]);
+    getNextMoveGroup = function () {
+        if (currentMove < moves.length) {
+            return extractGroup(moves[currentMove]);
         }
 
         return [];
     },
 
-    markGroup: function (group, mark) {
+    markGroup = function (group, mark) {
         var k, field;
 
         for (k = 0; k < group.length; k++) {
             field = group[k];
-            this.currentPosition[field[0]][field[1]] = mark;
+            currentPosition[field[0]][field[1]] = mark;
         }
     },
 
-    collapseDown: function () {
+    collapseDown = function () {
         var i, j, row, fieldState;
 
         for (i = 0; i < 12; i++) {
             row = 0;
             for (j = 0; j < 12; j++) {
-                fieldState = this.currentPosition[i][j];
+                fieldState = currentPosition[i][j];
 
                 if (fieldState > 0 && fieldState < 6) {
-                    this.currentPosition[i][j] = 0;
-                    this.currentPosition[i][row] = fieldState;
+                    currentPosition[i][j] = 0;
+                    currentPosition[i][row] = fieldState;
                     row++;
                 } else {
-                    this.currentPosition[i][j] = 0;
+                    currentPosition[i][j] = 0;
                 }
             }
         }
     },
 
-    collapseLeft: function () {
+    collapseLeft = function () {
         var i, col, j, fieldState;
 
         // scan all columns excepts the last
         for (i = 0; i < 11; i++) {
-            if (this.currentPosition[i][0] === 0) {
+            if (currentPosition[i][0] === 0) {
                 // find first non-empty column
                 for (col = i + 1; col < 12; col++) {
-                    if (this.currentPosition[col][0] > 0) {
+                    if (currentPosition[col][0] > 0) {
                         break;
                     }
                 }
@@ -294,14 +240,14 @@ Game.prototype = {
                 // copy it to the empty column and make it empty
                 if (col < 12) {
                     for (j = 0; j < 12; j++) {
-                        fieldState = this.currentPosition[col][j];
+                        fieldState = currentPosition[col][j];
 
                         if (fieldState === 0) {
                             break;
                         }
 
-                        this.currentPosition[i][j] = fieldState;
-                        this.currentPosition[col][j] = 0;
+                        currentPosition[i][j] = fieldState;
+                        currentPosition[col][j] = 0;
                     }
                 } else {
                     break;
@@ -310,100 +256,134 @@ Game.prototype = {
         }
     },
 
-    collapseGroup: function () {
-        this.collapseDown();
-        this.collapseLeft();
+    collapseGroup = function () {
+        collapseDown();
+        collapseLeft();
     },
 
-    addMove: function (move) {
+    addMove = function (move) {
         if (move[0] >= 0 && move[0] < 12 && move[1] >= 0 && move[1] < 12) {
-            this.moves.push(move);
+            moves.push(move);
         } else {
-            this.error = -1;
-            return this.error;
+            error = -1;
+            return error;
         }
     },
 
-    addTime: function (time) {
+    addTime = function (time) {
         if (typeof time === "number" && time >= 0) {
-            this.times.push(time);
+            times.push(time);
         } else {
-            this.error = -1;
-            return this.error;
+            error = -1;
+            return error;
         }
     },
 
-    getCurrentMoveTime: function () {
-        if (this.currentMove <= this.times.length) {
-            return this.times[this.currentMove - 1];
+    getCurrentMoveTime = function () {
+        if (currentMove <= times.length) {
+            return times[currentMove - 1];
         }
     },
 
-    playMove: function (field) {
-        var group = this.extractGroup(field);
+    isOver = function () {
+        var i, j, fieldState;
+
+        // try to find at least two connected fields of the same color
+        for (i = 0; i < 12; i++) {
+            // stop scanning if you came to empty part
+            if (currentPosition[i][0] === 0) {
+                return true;
+            }
+
+            for (j = 0; j < 12; j++) {
+                fieldState = currentPosition[i][j];
+
+                if (fieldState > 0) {
+                    if (i < 11) {
+                        if (currentPosition[i + 1][j] === fieldState) {
+                            return false;
+                        }
+                    }
+
+                    if (j < 11) {
+                        if (currentPosition[i][j + 1] === fieldState) {
+                            return false;
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return true;
+    },
+
+    playMove = function (field) {
+        var group = extractGroup(field);
 
         if (group.length < 2) {
             return false;
         }
 
         // if clicked group is larger than a single field
-        this.markGroup(group, 6);
-        this.collapseGroup();
-        this.currentMove++;
+        markGroup(group, 6);
+        collapseGroup();
+        currentMove++;
 
-        if (this.status === this.StatusPlay) {
+        if (status === Status.Play) {
             // moves are base 12 coded, as maximal value of coordinates is 11 (0 - 11)
             // this is no pain and makes game link a lot shorter!
-            this.addMove(field);
+            addMove(field);
 
-            if (this.currentMove !== 1) {
-                this.addTime(new Date().getTime() - this.startTime);
+            if (currentMove !== 1) {
+                addTime(new Date().getTime() - startTime);
             } else {
-                this.addTime(0);
+                addTime(0);
             }
 
-            if (this.isOver()) {
-                this.status = this.StatusOver;
+            if (isOver()) {
+                status = Status.Over;
             }
         }
 
         return true;
     },
 
-    playNextMove: function () {
-        if (this.currentMove < this.moves.length) {
-            this.playMove(this.moves[this.currentMove]);
+    playNextMove = function () {
+        if (currentMove < moves.length) {
+            playMove(moves[currentMove]);
         }
     },
 
-    rewindToMove: function (moveIndex) {
+    rewindToMove = function (moveIndex) {
         var i;
 
-        if (moveIndex < 0 || moveIndex > this.moves.length) {
+        if (moveIndex < 0 || moveIndex > moves.length) {
             return false;
         }
 
-        this.currentPosition = $.extend(true, [], this.startPosition);
-        this.currentMove = 0;
+        currentPosition = $.extend(true, [], startPosition);
+        currentMove = 0;
 
         for (i = 0; i < moveIndex; i++) {
-            this.playMove(this.moves[i]);
+            playMove(moves[i]);
         }
 
         return true;
     },
 
-    getScore: function () {
+    getScore = function () {
         var i, j, position, score = 0;
 
-        if (this.status === this.StatusInitial) {
+        if (status === Status.Initial) {
             return 0;
         }
 
-        if (this.status === this.StatusReady) {
-            position = this.startPosition;
+        if (status === Status.Ready) {
+            position = startPosition;
         } else {
-            position = this.currentPosition;
+            position = currentPosition;
         }
 
         for (i = 0; i < 12; i++) {
@@ -425,92 +405,140 @@ Game.prototype = {
         return score;
     },
 
-    isOver: function () {
-        var i, j, fieldState;
-
-        // try to find at least two connected fields of the same color
-        for (i = 0; i < 12; i++) {
-            // stop scanning if you came to empty part
-            if (this.currentPosition[i][0] === 0) {
-                return true;
-            }
-
-            for (j = 0; j < 12; j++) {
-                fieldState = this.currentPosition[i][j];
-
-                if (fieldState > 0) {
-                    if (i < 11) {
-                        if (this.currentPosition[i + 1][j] === fieldState) {
-                            return false;
-                        }
-                    }
-
-                    if (j < 11) {
-                        if (this.currentPosition[i][j + 1] === fieldState) {
-                            return false;
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-
-        return true;
-    },
-
     // replays the game and checks every move actually can be played
-    isValid: function () {
+    isValid = function () {
         var i, result = true;
 
-        this.currentPosition = $.extend(true, [], this.startPosition);
+        currentPosition = $.extend(true, [], startPosition);
 
-        for (i = 0; i < this.moves.length; i++) {
-            if (!this.playMove(this.moves[i])) {
+        for (i = 0; i < moves.length; i++) {
+            if (!playMove(moves[i])) {
                 result = false;
                 break;
             }
         }
 
-        this.currentPosition = [];
+        currentPosition = [];
         return result;
     },
 
-    toLinkParamString: function () {
+    fromLink = function (linkParamString) {
+        if (typeof linkParamString === "string") {
+            var linkParams = getQueryParams(linkParamString);
+
+            if (linkParams.position !== undefined) {
+                if (stringToPosition(linkParams.position)) {
+                    status = Status.Ready;
+
+                    if (linkParams.moves !== undefined) {
+                        if (stringToMoves(linkParams.moves)) {
+
+                            if (isValid()) {
+                                status = Status.Over;
+                                currentPosition = $.extend(true, [], startPosition);
+
+                                if (linkParams.times !== undefined) {
+                                    stringToTimes(linkParams.times);
+                                }
+                            } else {
+                                // game is NOT valid ! - reset everything
+                                startPosition = [];
+                                moves = [];
+                                status = Status.Initial;
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    },
+
+    toLinkParamString = function () {
         var i, j, field, string = "position=";
 
         for (i = 0; i < 12; i++) {
             for (j = 0; j < 12; j++) {
-                string += String(this.startPosition[i][j]);
+                string += String(startPosition[i][j]);
             }
         }
 
-        if (this.moves.length > 0) {
+        if (moves.length > 0) {
             string += "&moves=";
 
-            for (i = 0; i < this.moves.length; i++) {
-                field = this.moves[i];
+            for (i = 0; i < moves.length; i++) {
+                field = moves[i];
                 string += String(12*field[0] + field[1]);
 
-                if (i < this.moves.length - 1) {
+                if (i < moves.length - 1) {
                     string += ",";
                 }
             }
         }
 
-        if (this.times.length > 0) {
+        if (times.length > 0) {
             string += "&times=";
 
             // times are string coded by moves time differences
-            for (i = 1; i < this.times.length; i++) {
-                string += String(this.times[i] - this.times[i - 1]);
+            for (i = 1; i < times.length; i++) {
+                string += String(times[i] - times[i - 1]);
 
-                if (i < this.times.length - 1) {
+                if (i < times.length - 1) {
                     string += ",";
                 }
             }
         }
 
         return string;
+    };
+
+    // ***********************************
+    // execute remaining constructor steps
+    generateMask();
+
+    if (linkParamString === undefined) {
+        generateNewPosition();
+        status = Status.Ready;
+    } else {
+        status = Status.Initial;
+        fromLink(linkParamString);
     }
+
+    currentMove = 0;
+    startTime = 0;
+    error = 0;
+    // ***********************************
+
+    // publish public methods (API) and const. variables
+    return {
+        Status: Status,
+        getStatus: function (){return status;},
+        setStatus: function (_status){status = _status;},
+        getMoves: function () {return moves;},
+        getTimes: function () {return times;},
+        getStartPosition: function () {return startPosition;},
+        getCurrentPosition: function () {return currentPosition;},
+        getCurrentMove: function() {return currentMove;},
+        getStartTime: function () {return startTime;},
+        getError: function () {return error;},
+        startGame: startGame,
+        getNextMoveGroup: getNextMoveGroup,
+        getCurrentMoveTime: getCurrentMoveTime,
+        getScore: getScore,
+        playMove: playMove,
+        playNextMove: playNextMove,
+        replay: replay,
+        rewindToMove: rewindToMove,
+        toLinkParamString: toLinkParamString
+    };
 };

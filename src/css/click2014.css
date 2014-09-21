@@ -8,6 +8,11 @@
  * Date: Fri Aug 08, 2014
  */
 
+@font-face {
+    font-family: Gotham;
+    src: url("../fonts/Gotham-Book.otf");
+}
+
 html {
     height: 100%;
 }
@@ -16,9 +21,11 @@ body {
     width: 100%;
     height: 100%;
     margin: 0 auto;
-    background-color: rgba(19, 121, 202, 0.1);
-    background: url(../images/background.jpg) no-repeat;
+
+    background: url(../images/background.jpg) no-repeat rgba(19, 121, 202, 0.1);
     background-size: 100%;
+
+    font-family: Gotham, sans-serif;
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -33,7 +40,6 @@ body:hover {cursor: default}
 #mainDiv {
     width: 100%;
     min-height: 100%;
-    font-family: Arial,serif;
     font-size: 15px;
     display: -webkit-flex;
     display: -ms-flex;
@@ -112,12 +118,10 @@ body:hover {cursor: default}
 
 #gameExamples {
     width: 95px;
-    font-size: 20px;
+    font-size: 18px;
     margin-left: 180px;
     margin-top: 100px;
-    border-style: dotted;
-    border-width: 1px;
-    border-color: red;
+    border: 1px dotted red;
     border-radius: 5px;
 }
 
@@ -161,6 +165,18 @@ body:hover {cursor: default}
     display: inline-block;
 }
 
+.rowInnerDiv {
+    font-size: 14px;
+    font-weight: bold;
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: flex;
+}
+
+#rowInnerDiv {
+    border-bottom: 1px dotted;
+}
+
 .timeValue {
     width: 70px;
 }
@@ -170,19 +186,8 @@ body:hover {cursor: default}
 }
 
 .moveValue {
-    width: 50px;
+    width: 60px;
     text-align: right;
-}
-
-.rowInnerDiv {
-    font-weight: bold;
-    display: -webkit-flex;
-    display: -ms-flex;
-    display: flex;
-}
-
-#rowInnerDiv {
-    border-bottom: 1px dotted;
 }
 
 #timeText, #scoreText, #moveText {
@@ -294,20 +299,21 @@ body:hover {cursor: default}
 .playIcon.firefox, .pauseIcon.firefox {
     max-height: 90%;
     max-width: 90%;
-    margin-left: 1px;
-    margin-bottom: -6.5px;
+    margin-left: 2px;
+    margin-bottom: -6px;
 }
 
 .importIcon.firefox {
     max-height: 65%;
     max-width: 65%;
-    margin-left: -0.5px;
+    margin-left: 0.5px;
     margin-bottom: -3px;
 }
 
 .linkIcon.firefox  {
     max-height: 60%;
     max-width: 60%;
+    margin-left: -1px;
     margin-bottom: -2.5px;
 }
 
@@ -315,7 +321,7 @@ body:hover {cursor: default}
     max-height: 80%;
     max-width: 80%;
     margin-left: -0.2px;
-    margin-bottom: -4.9px;
+    margin-bottom: -4.5px;
 }
 
 /* HISTORY */
