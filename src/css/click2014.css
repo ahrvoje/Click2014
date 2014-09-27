@@ -154,7 +154,6 @@ body:hover {cursor: default}
 }
 
 .leftDiv {
-    color: rgba(0, 0, 0, 0);
     padding-right: 5px;
     text-align: right;
     display: inline-block;
@@ -201,12 +200,6 @@ body:hover {cursor: default}
 }
 
 /* BUTTONS */
-#buttonsContainer {
-    width: 310px;
-    padding: 4px 0 0 0;
-    display: flex;
-}
-
 .buttonFillerIn {
     -webkit-flex: 1;
     -ms-flex: 1;
@@ -219,26 +212,14 @@ body:hover {cursor: default}
     flex: 3;
 }
 
-.button {
-    color: white;
-    background-color: rgb(19, 121, 202);
-}
-
-.buttonOn.chrome {
-    -webkit-filter: invert(100%);
-    filter: invert;
-}
-
-.buttonOn.firefox {
-    background-color: rgb(236, 134, 53);
-}
-
 #startButtonDiv {
     height: 30px;
     margin-top: 2px;
 }
 
 #startButton {
+    background-color: rgb(19,121,202);
+    color: white;
     font-weight: normal;
     text-align: center;
     line-height: 30px;
@@ -247,85 +228,35 @@ body:hover {cursor: default}
     border-radius: 15px;
 }
 
-.autoPlayDiv, .autoPlayButton, .replayDiv, .replayButton, .linkDiv, .linkButton, .importDiv, .importButton, .emptyButtonDiv, .emptyButton {
-    line-height: 26px;
-    border-radius: 13px;
+#startButton:hover {
+    background-color: rgb(236,134,53);
+    color: black;
 }
 
-.autoPlayDiv, .replayDiv, .linkDiv, .importDiv, .emptyButtonDiv {
+#buttonsContainer {
+    line-height: 26px;
+    width: 310px;
+    padding: 4px 0 0 0;
+    display: flex;
+}
+
+.off {
+    display: none;
+}
+
+.smallButton, .smallButtonDiv {
+    line-height: 26px;
     width: 26px;
+}
+
+.smallButtonDiv {
     display: inline-block;
 }
 
-.autoPlayButton, .replayButton, .linkButton, .importButton {
-    width: 26px;
+.smallButton {
     text-align: center;
 }
 
-.emptyButton {
+#autoPauseButton {
     display: none;
-}
-
-.pauseIcon {
-    display: none;
-}
-
-.playIcon.chrome, .pauseIcon.chrome {
-    max-height: 90%;
-    max-width: 90%;
-    margin-left: 2px;
-    margin-bottom: -6px;
-}
-
-.importIcon.chrome {
-    max-height: 70%;
-    max-width: 70%;
-    margin-bottom: -4px;
-}
-
-.linkIcon.chrome  {
-    max-height: 60%;
-    max-width: 60%;
-    margin-bottom: -2px;
-}
-
-.replayIcon.chrome {
-    max-height: 80%;
-    max-width: 80%;
-    margin-left: 1px;
-    margin-bottom: -4px;
-}
-
-.playIcon.firefox, .pauseIcon.firefox {
-    max-height: 90%;
-    max-width: 90%;
-    margin-left: 2px;
-    margin-bottom: -6px;
-}
-
-.importIcon.firefox {
-    max-height: 65%;
-    max-width: 65%;
-    margin-left: 0.5px;
-    margin-bottom: -3px;
-}
-
-.linkIcon.firefox  {
-    max-height: 60%;
-    max-width: 60%;
-    margin-left: -1px;
-    margin-bottom: -2.5px;
-}
-
-.replayIcon.firefox {
-    max-height: 80%;
-    max-width: 80%;
-    margin-left: -0.2px;
-    margin-bottom: -4.5px;
-}
-
-/* HISTORY */
-#history {
-    height: 180px;
-    color: grey;
 }

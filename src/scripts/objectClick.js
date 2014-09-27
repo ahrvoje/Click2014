@@ -156,8 +156,7 @@ var Click = (function () {
         $("#timeValue").text("0");
         $("#scoreValue").text(game.getScore());
         $("#moveValue").text("0 / " + game.getMoves().length);
-        $(".playIcon").show();
-        $(".pauseIcon").hide();
+        $(".visible").filter(".on").show();
     },
 
     gameFromString = function (gameString) {
@@ -217,9 +216,9 @@ var Click = (function () {
         }
 
         if (game.getCurrentMove() === game.getMoves().length) {
+            $("#autoPauseButton").hide();
+            $("#autoPlayButton").show();
             clearInterval(autoPlayTimerInterval);
-            $(".playIcon").show();
-            $(".pauseIcon").hide();
             updateTimeText();
             game.setStatus(game.Status.Over);
         }
@@ -246,7 +245,6 @@ var Click = (function () {
                 return false;
             }
 
-            $(".button, .icon").addClass("chrome");
             $("#gameCanvas").on("mousewheel", function (event) {
                 processMouseWheel(extractWheelDelta(event));
             });
@@ -261,7 +259,6 @@ var Click = (function () {
                 return false;
             }
 
-            $(".button, .icon").addClass("firefox");
             $("#gameCanvas").on("DOMMouseScroll", function (event) {
                 processMouseWheel(extractWheelDelta(event));
             });
@@ -326,15 +323,15 @@ var Click = (function () {
                 autoPlayGameStartTime = 0;
             }
 
-            $(".playIcon").hide();
-            $(".pauseIcon").show();
+            $("#autoPlayButton").hide();
+            $("#autoPauseButton").show();
             autoPlayTimerInterval = setInterval(autoPlayMove, 10);
             autoPlaySystemStartTime = new Date().getTime();
             game.setStatus(game.Status.AutoPlay);
         // if game is autoPlaying and should be paused
         } else if (game.getStatus() === game.Status.AutoPlay) {
-            $(".playIcon").show();
-            $(".pauseIcon").hide();
+            $("#autoPauseButton").hide();
+            $("#autoPlayButton").show();
             clearInterval(autoPlayTimerInterval);
             updateTimeText();
             game.setStatus(game.Status.Over);
