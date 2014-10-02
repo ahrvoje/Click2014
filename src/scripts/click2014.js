@@ -36,7 +36,9 @@ $(document).ready(function () {
     // event listeners
     $("#startButton").click(function(){Click.startNewGame();});
     $("#gameCanvas").mousedown(function(event){Click.onCanvasClick(event);});
+    $(".backward").click(function(){Click.rewindBackward();});
     $(".autoPlay").click(function(){Click.autoPlay();});
+    $(".forward").click(function(){Click.rewindForward();});
     $(".import").click(function(){Click.importGame(window.prompt("Paste game link below"));});
     $(".link").click(function(){Click.promptGameLink();});
     $(".replay").click(function(){Click.replayStartPosition();});

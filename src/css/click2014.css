@@ -22,7 +22,7 @@ body {
     height: 100%;
     margin: 0 auto;
 
-    background: url(../images/background.jpg) no-repeat rgba(19, 121, 202, 0.1);
+    background: url(../images/background.jpg) rgba(19, 121, 202, 0.1);
     background-size: 100%;
 
     font-family: Gotham, sans-serif;
@@ -210,6 +210,12 @@ body:hover {cursor: default}
     -webkit-flex: 3;
     -ms-flex: 3;
     flex: 3;
+}
+
+.buttonSeparator {
+    width: 0;
+    height: 26px;
+    border-left: 1px dotted;
 }
 
 #startButtonDiv {

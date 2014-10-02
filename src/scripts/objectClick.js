@@ -140,6 +140,13 @@ var Click = (function () {
         $('#moveValue')[0].textContent = game.getCurrentMove() + " / " + game.getMoves().length;
     },
 
+    refreshInterface = function () {
+        drawAllFields();
+        updateTimeText();
+        updateScore();
+        updateMove();
+    },
+
     showButtons = function () {
         $(".button").css("display", "inherit");
     },
@@ -309,6 +316,14 @@ var Click = (function () {
         prepareInterface();
     },
 
+    stopAutoPlay = function () {
+        $("#autoPauseButton").hide();
+        $("#autoPlayButton").show();
+        clearInterval(autoPlayTimerInterval);
+        updateTimeText();
+        game.setStatus(game.Status.Over);
+    },
+
     autoPlay = function () {
         // if game is Over and it can be autoPlayed
         if (game.getStatus() === game.Status.Over) {
@@ -330,19 +345,27 @@ var Click = (function () {
             game.setStatus(game.Status.AutoPlay);
         // if game is autoPlaying and should be paused
         } else if (game.getStatus() === game.Status.AutoPlay) {
-            $("#autoPauseButton").hide();
-            $("#autoPlayButton").show();
-            clearInterval(autoPlayTimerInterval);
-            updateTimeText();
-            game.setStatus(game.Status.Over);
+            stopAutoPlay();
         }
     },
 
-    importGame = function (importedString) {
-        if (importedString !== "" && importedString !== null) {
-            gameFromString(importedString);
-        }
+    rewindBackward = function () {
+        game.rewindToMove(0);
+        stopAutoPlay();
+        refreshInterface();
     },
+
+    rewindForward = function () {
+        game.rewindToMove(game.getMoves().length);
+        stopAutoPlay();
+        refreshInterface();
+    },
+
+    importGame = function (importedString) {
+    if (importedString !== "" && importedString !== null) {
+        gameFromString(importedString);
+    }
+},
 
     loadExample = function (exampleIndex) {
         if (exampleIndex >= 0 && exampleIndex < examples.length) {
@@ -368,6 +391,8 @@ var Click = (function () {
         startNewGame: startNewGame,
         replayStartPosition: replayStartPosition,
         autoPlay: autoPlay,
+        rewindBackward: rewindBackward,
+        rewindForward: rewindForward,
         importGame: importGame,
         loadExample: loadExample,
         init: init
