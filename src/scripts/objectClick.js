@@ -148,11 +148,11 @@ var Click = (function () {
     },
 
     showButtons = function () {
-        $(".button").css("display", "inherit");
+        $(".button,.smallButtonDiv").css("display", "inherit");
     },
 
     hideButtons = function () {
-        $(".button").css("display", "none");
+        $(".button,.smallButtonDiv").css("display", "none");
     },
 
     prepareInterface = function () {

@@ -27,13 +27,15 @@ $(document).ready(function () {
         }
     );
 
+    // event listeners
+    // ***************
+
     // disable mouse wheel page scroll while over the canvas
     $("#gameCanvas").hover(
         function () {$("body").css("overflow-y", "hidden");},
         function () {$("body").css("overflow-y", "auto");}
     );
 
-    // event listeners
     $("#startButton").click(function(){Click.startNewGame();});
     $("#gameCanvas").mousedown(function(event){Click.onCanvasClick(event);});
     $(".backward").click(function(){Click.rewindBackward();});
@@ -43,9 +45,9 @@ $(document).ready(function () {
     $(".link").click(function(){Click.promptGameLink();});
     $(".replay").click(function(){Click.replayStartPosition();});
 
-    $("#example0").click(function(){Click.loadExample(0);});
-    $("#example1").click(function(){Click.loadExample(1);});
-    $("#example2").click(function(){Click.loadExample(2);});
+    $("#example0").click(function(){Click.loadExample(0); setTimeout(Click.autoPlay, 1000);});
+    $("#example1").click(function(){Click.loadExample(1); setTimeout(Click.autoPlay, 1000);});
+    $("#example2").click(function(){Click.loadExample(2); setTimeout(Click.autoPlay, 1000);});
 
     // initialize Click object
     Click.init();
