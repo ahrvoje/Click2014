@@ -231,6 +231,38 @@ var Click = (function () {
         }
     },
 
+    displayWarning = function(message) {
+        $("#gameExamples").remove();
+        $("#game").remove();
+        $("#footer").remove();
+        $("#mainRight")
+            .html(message)
+            .css({
+                "min-width": "700px",
+                "max-height": "35px",
+                "margin": "200px 50px",
+                "z-index": 5555,
+                "background-color": "AntiqueWhite",
+                "border-radius": "5px",
+                "text-align": "center"
+            });
+
+        // create gray overlay over the entire page
+        $("body").append("<div id='overlay'></div>");
+
+        $("#overlay")
+            .height($(document).height())
+            .css({
+                "opacity" : 0.3,
+                "position": "absolute",
+                "top": 0,
+                "left": 0,
+                "background-color": "black",
+                "width": "100%",
+                "z-index": 5000
+            });
+    },
+
     checkBrowser = function () {
         var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome") > -1);
         var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox") > -1);
@@ -238,8 +270,7 @@ var Click = (function () {
         var warningDiv = $("#Warning");
 
         if (!isChrome && !isFirefox) {
-            $(warningDiv).text("Please use Chrome or Firefox browser!");
-            $(warningDiv).css("display", "inherit");
+            displayWarning("Please use Chrome or Firefox browser!");
             return false;
         }
 
@@ -247,8 +278,7 @@ var Click = (function () {
             var chromeVersion = parseInt(navigator.userAgent.match(/Chrome\/(\d+)\./)[1], 10);
 
             if (chromeVersion < 33) {
-                $(warningDiv).text("Please use Chrome 33 or newer!");
-                $(warningDiv).css("display", "inherit");
+                displayWarning("Please use Chrome 33 or newer!");
                 return false;
             }
 
@@ -261,8 +291,7 @@ var Click = (function () {
             var firefoxVersion = parseInt(navigator.userAgent.match(/Firefox\/(\d+)\./)[1], 10);
 
             if (firefoxVersion < 30) {
-                $(warningDiv).text("Please use Firefox 30 or newer!");
-                $(warningDiv).css("display", "inherit");
+                displayWarning("Please use Firefox 30 or newer!");
                 return false;
             }
 
