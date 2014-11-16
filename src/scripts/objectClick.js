@@ -238,9 +238,9 @@ var Click = (function () {
         $("#mainRight")
             .html(message)
             .css({
-                "min-width": "700px",
+                "min-width": "900px",
                 "max-height": "35px",
-                "margin": "200px 50px",
+                "margin": "200px 500px 0 50px",
                 "z-index": 5555,
                 "background-color": "AntiqueWhite",
                 "border-radius": "5px",
@@ -264,13 +264,18 @@ var Click = (function () {
     },
 
     checkBrowser = function () {
-        var isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome") > -1);
-        var isFirefox = (navigator.userAgent.toLowerCase().indexOf("firefox") > -1);
+        var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+        var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+        var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+        // At least Safari 3+: "[object HTMLElementConstructor]"
+        var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+        var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
         var warningDiv = $("#Warning");
 
-        if (!isChrome && !isFirefox) {
-            displayWarning("Please use Chrome or Firefox browser!");
+        if (!isChrome && !isFirefox && !isOpera) {
+            displayWarning("Please use Chrome, Firefox or Opera browser!");
             return false;
         }
 
@@ -296,6 +301,19 @@ var Click = (function () {
             }
 
             $("#gameCanvas").on("DOMMouseScroll", function (event) {
+                processMouseWheel(extractWheelDelta(event));
+            });
+        }
+
+        if (isOpera) {
+            var operaVersion = parseInt(navigator.userAgent.match(/OPR\/(\d+)\./)[1], 10);
+
+            if (operaVersion < 25) {
+                displayWarning("Please use Opera 25 or newer!");
+                return false;
+            }
+
+            $("#gameCanvas").on("mousewheel", function (event) {
                 processMouseWheel(extractWheelDelta(event));
             });
         }
