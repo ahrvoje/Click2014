@@ -97,9 +97,46 @@ body:hover {
     -ms-flex: 10;
     flex: 10;
 
-    opacity: 0.2;
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: flex;
+    align-items: flex-end;
+
+    font-family: Gotham, sans-serif;
     text-align: right;
     padding-right: 10px;
+}
+
+#copy {
+    -webkit-flex: 8;
+    -ms-flex: 8;
+    flex: 8;
+    min-width: 280px;
+
+    text-align: right;
+    opacity: 0.2;
+}
+
+#mail {
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 150px;
+
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+
+    text-align: left;
+    text-decoration: underline;
+    opacity: 0.4;
+}
+
+#mail:hover {
+    cursor: pointer;
+    opacity: 1;
 }
 
 #game {

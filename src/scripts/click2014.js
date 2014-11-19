@@ -49,6 +49,8 @@ $(document).ready(function () {
     $("#example1").click(function(){Click.loadExample(1); setTimeout(Click.autoPlay, 1000);});
     $("#example2").click(function(){Click.loadExample(2); setTimeout(Click.autoPlay, 1000);});
 
+    $("#mail").click(function(){window.prompt("Contact mail:", "ahrvoje@gmail.com");});
+
     // initialize Click object
     Click.init();
 });
