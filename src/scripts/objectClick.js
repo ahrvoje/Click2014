@@ -264,20 +264,17 @@ var Click = (function () {
     },
 
     checkBrowser = function () {
-        var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
         // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+        var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
         var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
-        var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-        // At least Safari 3+: "[object HTMLElementConstructor]"
         var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
-        var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+
+        //var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+        // At least Safari 3+: "[object HTMLElementConstructor]"
+        //var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 
         var warningDiv = $("#Warning");
-
-        if (!isChrome && !isFirefox && !isOpera) {
-            displayWarning("Please use Chrome, Firefox or Opera browser!");
-            return false;
-        }
+        $(warningDiv).css("display", "none");
 
         if (isChrome) {
             var chromeVersion = parseInt(navigator.userAgent.match(/Chrome\/(\d+)\./)[1], 10);
@@ -290,6 +287,8 @@ var Click = (function () {
             $("#gameCanvas").on("mousewheel", function (event) {
                 processMouseWheel(extractWheelDelta(event));
             });
+
+            return true;
         }
 
         if (isFirefox) {
@@ -303,6 +302,8 @@ var Click = (function () {
             $("#gameCanvas").on("DOMMouseScroll", function (event) {
                 processMouseWheel(extractWheelDelta(event));
             });
+
+            return true;
         }
 
         if (isOpera) {
@@ -316,10 +317,12 @@ var Click = (function () {
             $("#gameCanvas").on("mousewheel", function (event) {
                 processMouseWheel(extractWheelDelta(event));
             });
+
+            return true;
         }
 
-        $(warningDiv).css("display", "none");
-        return true;
+        displayWarning("Please use Chrome, Firefox or Opera browser!");
+        return false;
     },
 
     promptGameLink = function () {
