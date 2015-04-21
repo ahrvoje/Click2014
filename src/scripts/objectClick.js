@@ -412,10 +412,10 @@ var Click = (function () {
     },
 
     importGame = function (importedString) {
-    if (importedString !== "" && importedString !== null) {
-        gameFromString(importedString);
-    }
-},
+        if (importedString !== "" && importedString !== null) {
+            gameFromString(importedString);
+        }
+    },
 
     loadExample = function (exampleIndex) {
         if (exampleIndex >= 0 && exampleIndex < examples.length) {
@@ -441,6 +441,7 @@ var Click = (function () {
         startNewGame: startNewGame,
         replayStartPosition: replayStartPosition,
         autoPlay: autoPlay,
+        stopAutoPlay: stopAutoPlay,
         rewindBackward: rewindBackward,
         rewindForward: rewindForward,
         importGame: importGame,

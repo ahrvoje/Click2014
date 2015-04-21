@@ -45,9 +45,9 @@ $(document).ready(function () {
     $(".link").click(function(){Click.promptGameLink();});
     $(".replay").click(function(){Click.replayStartPosition();});
 
-    $("#example0").click(function(){Click.loadExample(0); setTimeout(Click.autoPlay, 1000);});
-    $("#example1").click(function(){Click.loadExample(1); setTimeout(Click.autoPlay, 1000);});
-    $("#example2").click(function(){Click.loadExample(2); setTimeout(Click.autoPlay, 1000);});
+    $("#example0").click(function(){Click.loadExample(0); setTimeout(function(){Click.stopAutoPlay(); Click.autoPlay();}, 1000);});
+    $("#example1").click(function(){Click.loadExample(1); setTimeout(function(){Click.stopAutoPlay(); Click.autoPlay();}, 1000);});
+    $("#example2").click(function(){Click.loadExample(2); setTimeout(function(){Click.stopAutoPlay(); Click.autoPlay();}, 1000);});
 
     $("#mail").click(function(){window.prompt("Contact mail:", "ahrvoje@gmail.com");});
 
