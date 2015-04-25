@@ -1,4 +1,4 @@
-/*
+/**
  * Click2014
  *
  * Copyright 2014, Hrvoje Abraham ahrvoje@gmail.com
@@ -27,17 +27,19 @@ $(document).ready(function () {
         }
     );
 
-    // event listeners
+    // events
     // ***************
 
-    // disable mouse wheel page scroll while over the canvas
-    $("#gameCanvas").hover(
+    $("#gameCanvas")
+        // disable mouse wheel page scroll while over the canvas
+        .hover(
         function () {$("body").css("overflow-y", "hidden");},
         function () {$("body").css("overflow-y", "auto");}
+    )
+        .mousedown(function(event){Click.onCanvasClick(event);}
     );
 
     $("#startButton").click(function(){Click.startNewGame();});
-    $("#gameCanvas").mousedown(function(event){Click.onCanvasClick(event);});
     $(".backward").click(function(){Click.rewindBackward();});
     $(".autoPlay").click(function(){Click.autoPlay();});
     $(".forward").click(function(){Click.rewindForward();});
