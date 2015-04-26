@@ -350,7 +350,7 @@ var Game = function (gameString) {
         },
 
         getString = function () {
-            return GameData2String(1, startPosition, moves, times)
+            return Serializer.serialize(2, startPosition, moves, times)
         },
 
         // replays the game and checks every move actually can be played
@@ -382,7 +382,7 @@ var Game = function (gameString) {
         generateNewPosition();
         status = Status.Ready;
     } else {
-        var gameData = String2GameData(gameString);
+        var gameData = Serializer.deserialize(gameString);
         startPosition = $.extend(true, [], gameData.p);
         moves = $.extend(true, [], gameData.m);
         times = $.extend(true, [], gameData.t);

@@ -13,6 +13,9 @@ Serializer1 = (function () {
 
     var stringToPosition = function (positionString) {
             var i, x, column;
+
+            position = [];
+
             if (positionString.length !== 144) {
                 return false
             }
@@ -41,6 +44,8 @@ Serializer1 = (function () {
         stringToMoves = function (movesString) {
             var i, fieldCodes = movesString.split(','), fieldCode, x, y;
 
+            moves = [];
+
             for (i = 0; i < fieldCodes.length; i++) {
                 fieldCode = parseInt(fieldCodes[i], 10);
                 x = Math.floor(fieldCode / 12);
@@ -59,6 +64,7 @@ Serializer1 = (function () {
             var i, list = timesString.split(',');
 
             times = [0];
+
             for (i = 0; i < list.length; i++) {
                 times.push(times[i] + Number(list[i]))
             }
@@ -67,10 +73,6 @@ Serializer1 = (function () {
         },
 
         deserialize = function (positionString, movesString, timesString) {
-            position = [];
-            moves = [];
-            times = [];
-
             if (isString(positionString)) {
                 if (!stringToPosition(positionString)) {
                     return {p:[], m:[], t:[]}
@@ -92,12 +94,8 @@ Serializer1 = (function () {
             return {p:position, m:moves, t:times}
         },
 
-        serialize = function (_position, _moves, _times) {
+        serialize = function (position, moves, times) {
             var i, j, field, string = "position=";
-
-            position = _position;
-            moves = _moves;
-            times = _times;
 
             for (i = 0; i < 12; i++) {
                 for (j = 0; j < 12; j++) {
@@ -142,15 +140,42 @@ Serializer1 = (function () {
 } () );
 
 Serializer2 = (function () {
-    var position=[], moves=[], times=[];
+    var position, moves, times;
 
     var stringToPosition = function (positionString) {
+            var i, j, tmp, column;
+            position = [];
+
+            while (positionString.length % 5 > 0) {
+                positionString = "0" + positionString
+            }
+
+            for (i = 0; i < positionString.length / 5; i++) {
+                tmp = "";
+
+                for (j = 0; j < 5; j++) {
+                    tmp += positionString[5 * i + j]
+                }
+
+                tmp = base74_to_base6(tmp);
+
+                column = [];
+                for (j = 0; j < tmp.length; j++) {
+                    column.push(eval(tmp[j]))
+                }
+
+                position.push(column)
+            }
+
+            return true
         },
 
         stringToMoves = function (movesString) {
+            moves = [];
         },
 
         stringToTimes = function (timesString) {
+            times = [];
         },
 
         deserialize = function (positionString, movesString, timesString) {
@@ -162,26 +187,53 @@ Serializer2 = (function () {
 
             if (isString(movesString)) {
                 if (!stringToMoves(movesString)) {
-                    moves = []
+                    return {p:position, m:[], t:[]}
                 }
             }
 
             if (isString(timesString)) {
                 if (!stringToTimes(timesString)) {
-                    times = []
+                    return {p:position, m:moves, t:[]}
                 }
             }
 
             return {p:position, m:moves, t:times}
         },
 
-        serialize = function (_position, _moves, _times) {
-            var string = "position=";
+        serialize = function (position, moves, times) {
+            var i, j, p0, p1, string = "v=2&p=", tmp;
 
-            position = _position;
-            moves = _moves;
-            times = _times;
+            p0 = "";
+            for (i = 0; i < 12; i++) {
+                if (position[i][0] === 0) {
+                    break
+                }
 
+                for (j = 0; j < 12; j++) {
+                    p0 += String(position[i][j]);
+
+                    if (position[i][j] === 0) {
+                        break
+                    }
+                }
+            }
+
+            while (p0.length % 12 > 0) {
+                p0 = "0" + p0
+            }
+
+            p1 = "";
+            for (i = 0; i < p0.length / 12; i++) {
+                tmp = "";
+                for (j = 0; j < 12; j++) {
+                    tmp = tmp + p0[12 * i + j];
+                }
+
+                tmp = base6_to_base74(tmp);
+                p1 += tmp
+            }
+
+            string += p1;
             return string
         };
 
@@ -192,26 +244,34 @@ Serializer2 = (function () {
     }
 } () );
 
-String2GameData = function (gameString) {
-    var gameParams = getQueryParams(gameString);
+Serializer = (function () {
+    var serialize = function (version, position, moves, times) {
+            // determine the serialization version and act accordingly
+            if (version === 1) {
+                return Serializer1.serialize(position, moves, times)
+            } else if (version === 2) {
+                return Serializer2.serialize(position, moves, times)
+            } else {
+                window.alert("Unknown serialization version!!!")
+            }
+        },
 
-    // determine the serialization version and act accordingly
-    if (gameParams.v === undefined) {
-        return Serializer1.deserialize(gameParams.position, gameParams.moves, gameParams.times)
-    } else if (gameParams.v === "2") {
-        return Serializer2.deserialize(gameParams.p, gameParams.m, gameParams.t)
-    } else {
-        window.alert("Unknown serialization version!")
-    }
-};
+        deserialize = function (gameString) {
+            var gameParams = getQueryParams(gameString);
 
-GameData2String = function (version, position, moves, times) {
-    // determine the serialization version and act accordingly
-    if (version === 1) {
-        return Serializer1.serialize(position, moves, times)
-    } else if (version === 2) {
-        return Serializer2.serialize(position, moves, times)
-    } else {
-        window.alert("Unknown serialization version!!!")
+            // determine the serialization version and act accordingly
+            if (gameParams.v === undefined) {
+                return Serializer1.deserialize(gameParams.position, gameParams.moves, gameParams.times)
+            } else if (gameParams.v === "2") {
+                return Serializer2.deserialize(gameParams.p, gameParams.m, gameParams.t)
+            } else {
+                window.alert("Unknown serialization version!")
+            }
+        };
+
+    // Serializer API
+    return {
+        serialize: serialize,
+        deserialize: deserialize
     }
-};
+} () );
