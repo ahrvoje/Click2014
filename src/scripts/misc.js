@@ -68,6 +68,10 @@ base6_to_base74 = function (base6) {
         base10 = (base10 - mod) / 74;
     }
 
+    while (base74.length % 5 > 0) {
+        base74 = "0" + base74
+    }
+
     return base74;
 };
 
