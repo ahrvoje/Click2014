@@ -143,28 +143,48 @@ Serializer2 = (function () {
     var position, moves, times;
 
     var stringToPosition = function (positionString) {
-            var i, j, tmp, column;
+            var i, j, base6, tmp, column, row, x;
+
             position = [];
+            for (i=0; i<12; i++) {
+                position.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            }
 
             while (positionString.length % 5 > 0) {
                 positionString = "0" + positionString
             }
 
+            base6 = "";
             for (i = 0; i < positionString.length / 5; i++) {
-                tmp = "";
+                tmp = base74_to_base6(positionString.substring(5*i, 5*i + 5));
 
-                for (j = 0; j < 5; j++) {
-                    tmp += positionString[5 * i + j]
+                while (tmp.length % 12 > 0) {
+                    tmp = "0" + tmp
                 }
 
-                tmp = base74_to_base6(tmp);
+                base6 += tmp
+            }
 
-                column = [];
-                for (j = 0; j < tmp.length; j++) {
-                    column.push(eval(tmp[j]))
+            column = 0; row = 0;
+            for (i = 0; i < base6.length || column == 12; i++) {
+                x = eval(base6[i]);
+
+                // row starts with 0 = empty part, end of position
+                if (row == 0 && x == 0) {
+                    break
                 }
 
-                position.push(column)
+                if (x > 0) {
+                    position[column][row++] = x
+                } else {
+                    column++;
+                    row = 0
+                }
+
+                if (row == 12) {
+                    column++;
+                    row = 0
+                }
             }
 
             return true
@@ -201,7 +221,7 @@ Serializer2 = (function () {
         },
 
         serialize = function (position, moves, times) {
-            var i, j, p0, p1, string = "v=2&p=", tmp;
+            var i, j, p0, p1, string = "v=2", tmp;
 
             p0 = "";
             for (i = 0; i < 12; i++) {
@@ -218,22 +238,31 @@ Serializer2 = (function () {
                 }
             }
 
-            while (p0.length % 12 > 0) {
-                p0 = "0" + p0
-            }
-
-            p1 = "";
-            for (i = 0; i < p0.length / 12; i++) {
-                tmp = "";
-                for (j = 0; j < 12; j++) {
-                    tmp = tmp + p0[12 * i + j];
+            if (p0.length > 0) {
+                while (p0.length % 12 > 0) {
+                    p0 = p0 + "0"
                 }
 
-                tmp = base6_to_base74(tmp);
-                p1 += tmp
+                p1 = "";
+                for (i = 0; i < p0.length / 12; i++) {
+                    tmp = "";
+                    for (j = 0; j < 12; j++) {
+                        tmp = tmp + p0[12 * i + j]
+                    }
+
+                    tmp = base6_to_base74(tmp);
+                    p1 += tmp
+                }
+
+                // remove leading zeros
+                while (p1[0] == '0') {
+                    p1 = p1.substring(1)
+                }
+            } else {
+                p1 = "0"
             }
 
-            string += p1;
+            string += "&p=" + p1;
             return string
         };
 
