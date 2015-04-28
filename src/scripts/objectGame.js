@@ -350,7 +350,8 @@ var Game = function (gameString) {
         },
 
         getString = function () {
-            return Serializer.serialize(2, startPosition, moves, times)
+//            return Serializer.serialize(2, startPosition, moves, times)
+            return Serializer.serialize(2, currentPosition, [], [])
         },
 
         // replays the game and checks every move actually can be played
