@@ -37,6 +37,12 @@ var Click = (function () {
             };
         },
 
+        drawBackground = function () {
+            drawingContext.rect(0, 0, 310, 310);
+            drawingContext.fillStyle = colors.backgroundColor;
+            drawingContext.fill()
+        },
+
         drawField = function (i, j, color) {
             drawingContext.beginPath();
             drawingContext.rect(25 * i + 6, 300 - 25 * (j + 1) + 6, 23, 23);
@@ -60,11 +66,11 @@ var Click = (function () {
 
         drawAllFields = function () {
             var i, j, color, position;
-            // clear canvas hack
-            drawingCanvas.width = drawingCanvas.width;
 
-            drawingContext.strokeStyle = colors.backgroundColor;
+            drawBackground();
+
             drawingContext.lineWidth = 4;
+            drawingContext.strokeStyle = colors.backgroundColor;
 
             if (game.getStatus() === game.Status.Ready) {
                 position = game.getStartPosition()
@@ -330,7 +336,7 @@ var Click = (function () {
 
         promptGameLink = function () {
             window.prompt("Copy link to clipboard (Ctrl+C)",
-                    String(document.location).split("?", 1)[0] + "?" + game.getString());
+                String(document.location).split("?", 1)[0] + "?" + game.getString());
         },
 
         onCanvasClick = function (event) {
@@ -397,8 +403,8 @@ var Click = (function () {
                 autoPlayTimerInterval = setInterval(autoPlayMove, 10);
                 autoPlaySystemStartTime = new Date().getTime();
                 game.setStatus(game.Status.AutoPlay);
-            // if game is autoPlaying and should be paused
             } else if (game.getStatus() === game.Status.AutoPlay) {
+                // if game is autoPlaying and should be paused
                 stopAutoPlay()
             }
         },
