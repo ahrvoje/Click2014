@@ -37,12 +37,6 @@ var Click = (function () {
             };
         },
 
-        drawBackground = function () {
-            drawingContext.rect(0, 0, 310, 310);
-            drawingContext.fillStyle = colors.backgroundColor;
-            drawingContext.fill()
-        },
-
         drawField = function (i, j, color) {
             drawingContext.beginPath();
             drawingContext.rect(25 * i + 6, 300 - 25 * (j + 1) + 6, 23, 23);
@@ -66,11 +60,11 @@ var Click = (function () {
 
         drawAllFields = function () {
             var i, j, color, position;
+            // clear canvas hack
+            drawingCanvas.width = drawingCanvas.width;
 
-            drawBackground();
-
-            drawingContext.lineWidth = 4;
             drawingContext.strokeStyle = colors.backgroundColor;
+            drawingContext.lineWidth = 4;
 
             if (game.getStatus() === game.Status.Ready) {
                 position = game.getStartPosition()
