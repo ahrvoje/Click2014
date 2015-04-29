@@ -145,11 +145,7 @@ Serializer2 = (function () {
     var stringToPosition = function (positionString) {
             var i, j, base6, tmp, column, row, x;
 
-            position = [];
-            for (i=0; i<12; i++) {
-                position.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-            }
-
+            // prepend with trailing zeros
             while (positionString.length % 5 > 0) {
                 positionString = "0" + positionString
             }
@@ -163,6 +159,16 @@ Serializer2 = (function () {
                 }
 
                 base6 += tmp
+            }
+
+            // remove leading zeros
+            while (base6[0] === '0') {
+                base6 = base6.substring(1)
+            }
+
+            position = [];
+            for (i=0; i<12; i++) {
+                position.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
             }
 
             column = 0; row = 0;
@@ -239,18 +245,24 @@ Serializer2 = (function () {
             }
 
             if (p0.length > 0) {
+                // trim trailing zeroes
+                while (p0[p0.length - 1] === '0') {
+                    p0 = p0.slice(0, -1)
+                }
+
+                // prepend with zeros to match 12x length
                 while (p0.length % 12 > 0) {
-                    p0 = p0 + "0"
+                    p0 = "0" + p0
                 }
 
                 p1 = "";
                 for (i = 0; i < p0.length / 12; i++) {
-                    tmp = "";
-                    for (j = 0; j < 12; j++) {
-                        tmp = tmp + p0[12 * i + j]
+                    tmp = base6_to_base74(p0.substring(12*i, 12*i + 12));
+
+                    while (tmp.length % 5 > 0) {
+                        tmp = "0" + tmp
                     }
 
-                    tmp = base6_to_base74(tmp);
                     p1 += tmp
                 }
 
