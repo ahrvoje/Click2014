@@ -230,10 +230,6 @@ body:hover {
     text-align: right;
 }
 
-#timeText, #scoreText, #moveText {
-    color: black;
-}
-
 .filler {
     -webkit-flex: 1;
     -ms-flex: 1;
