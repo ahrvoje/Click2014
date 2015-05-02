@@ -143,51 +143,26 @@ Serializer2 = (function () {
     var position, moves, times;
 
     var stringToPosition = function (positionString) {
-            var i, j, base6, tmp, column, row, x;
-
-            // prepend with trailing zeros
-            while (positionString.length % 5 > 0) {
-                positionString = "0" + positionString
-            }
-
-            base6 = "";
-            for (i = 0; i < positionString.length / 5; i++) {
-                tmp = base74_to_base6(positionString.substring(5*i, 5*i + 5));
-
-                while (tmp.length % 12 > 0) {
-                    tmp = "0" + tmp
-                }
-
-                base6 += tmp
-            }
-
-            // remove leading zeros
-            while (base6[0] === '0') {
-                base6 = base6.substring(1)
-            }
+            var i, column, row, x;
+            var base6 = topZeros(longX_to_longY(positionString, 74, 5, 6, 12));
 
             position = [];
-            for (i=0; i<12; i++) {
+            for (i = 0; i < 12; i++) {
                 position.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
             }
 
             column = 0; row = 0;
-            for (i = 0; i < base6.length || column == 12; i++) {
-                x = eval(base6[i]);
+            for (i = 0; i < base6.length && column < 12; i++) {
+                x = Number(base6[i]);
 
-                // row starts with 0 = empty part, end of position
+                // column starts with 0 = end of position
                 if (row == 0 && x == 0) {
                     break
                 }
 
-                if (x > 0) {
-                    position[column][row++] = x
-                } else {
-                    column++;
-                    row = 0
-                }
+                position[column][row++] = x;
 
-                if (row == 12) {
+                if (x == 0 || row == 12) {
                     column++;
                     row = 0
                 }
@@ -196,45 +171,11 @@ Serializer2 = (function () {
             return true
         },
 
-        stringToMoves = function (movesString) {
-            moves = [];
-        },
-
-        stringToTimes = function (timesString) {
-            times = [];
-        },
-
-        deserialize = function (positionString, movesString, timesString) {
-            if (isString(positionString)) {
-                if (!stringToPosition(positionString)) {
-                    return {p:[], m:[], t:[]}
-                }
-            }
-
-            if (isString(movesString)) {
-                if (!stringToMoves(movesString)) {
-                    return {p:position, m:[], t:[]}
-                }
-            }
-
-            if (isString(timesString)) {
-                if (!stringToTimes(timesString)) {
-                    return {p:position, m:moves, t:[]}
-                }
-            }
-
-            return {p:position, m:moves, t:times}
-        },
-
-        serialize = function (position, moves, times) {
-            var i, j, p0, p1, string = "v=2", tmp;
+        positionToString = function (position) {
+            var i, j, p0;
 
             p0 = "";
-            for (i = 0; i < 12; i++) {
-                if (position[i][0] === 0) {
-                    break
-                }
-
+            for (i = 0; i < 12 && position[i][0] !== 0; i++) {
                 for (j = 0; j < 12; j++) {
                     p0 += String(position[i][j]);
 
@@ -244,37 +185,95 @@ Serializer2 = (function () {
                 }
             }
 
-            if (p0.length > 0) {
-                // trim trailing zeroes
-                while (p0[p0.length - 1] === '0') {
-                    p0 = p0.slice(0, -1)
-                }
+            return topZeros(longX_to_longY(tailZeros(p0), 6, 12, 74, 5))
+        },
 
-                // prepend with zeros to match 12x length
-                while (p0.length % 12 > 0) {
-                    p0 = "0" + p0
-                }
+        componentStringToMoves = function (movesStringComponent, huffman_table) {
+            var m0 = Number(baseX_to_baseY(movesStringComponent[0], 74, 10));
+            var lz = Number(baseX_to_baseY(movesStringComponent[1], 74, 10));
+            var huffman = longX_to_longY(movesStringComponent.substring(2), 74, 5, 2, 31).substring(lz);
+            var deltas = huffman_decode(huffman, huffman_table);
+            var movesComponent = [m0];
 
-                p1 = "";
-                for (i = 0; i < p0.length / 12; i++) {
-                    tmp = base6_to_base74(p0.substring(12*i, 12*i + 12));
-
-                    while (tmp.length % 5 > 0) {
-                        tmp = "0" + tmp
-                    }
-
-                    p1 += tmp
-                }
-
-                // remove leading zeros
-                while (p1[0] == '0') {
-                    p1 = p1.substring(1)
-                }
-            } else {
-                p1 = "0"
+            for (var i = 0; i < deltas.length; i++) {
+                movesComponent.push(movesComponent[movesComponent.length - 1] + Number(deltas[i]))
             }
 
-            string += "&p=" + p1;
+            return movesComponent
+        },
+
+        stringToMoves = function (movesString) {
+            var movesStrings = movesString.split(",");
+            var movesX = componentStringToMoves(movesStrings[0], dx_huffman_decode);
+            var movesY = componentStringToMoves(movesStrings[1], dy_huffman_decode);
+
+            moves = [];
+            for (var i = 0; i < movesX.length; i++) {
+                moves.push([movesX[i], movesY[i]])
+            }
+
+            return true
+        },
+
+        movesComponentToString = function (moves, c, huffman_table) {
+            var i, deltas=[], huffman, lz, base74;
+
+            for (i = 1; i < moves.length; i++) {
+                deltas.push(moves[i][c] - moves[i-1][c])
+            }
+
+            huffman = huffman_encode(deltas, huffman_table);
+            lz = (31 - huffman.length % 31) % 31;
+            base74 = longX_to_longY(huffman, 2, 31, 74, 5);
+
+            return baseX_to_baseY(String(moves[0][c]), 10, 74) + baseX_to_baseY(String(lz), 10, 74) + topZeros(base74)
+        },
+
+        movesToString = function (moves) {
+            var stringX = movesComponentToString(moves, 0, dx_huffman_encode);
+            var stringY = movesComponentToString(moves, 1, dy_huffman_encode);
+
+            return stringX + "," + stringY
+        },
+
+        stringToTimes = function (timesString) {
+            times = [];
+            return true
+        },
+
+        timesToString = function (times) {
+
+        },
+
+        deserialize = function (positionString, movesString, timesString) {
+            if (!stringToPosition(positionString)) {
+                return {p:[], m:[], t:[]}
+            }
+
+            if (!stringToMoves(movesString)) {
+                return {p:position, m:[], t:[]}
+            }
+
+            if (!stringToTimes(timesString)) {
+                return {p:position, m:moves, t:[]}
+            }
+
+            return {p:position, m:moves, t:times}
+        },
+
+        serialize = function (_position, _moves, _times) {
+            var string="v=2";
+
+            string += "&p=" + positionToString(_position);
+
+            if (_moves.length > 0) {
+                string += "&m=" + movesToString(_moves)
+            }
+
+            if (_times.length > 0) {
+                string += "&t=" + timesToString(_times)
+            }
+
             return string
         };
 

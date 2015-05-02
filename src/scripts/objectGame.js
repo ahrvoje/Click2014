@@ -31,7 +31,6 @@ var Game = function (gameString) {
             var i, j, column;
 
             mask = [];
-
             for (i = 0; i < 12; i++) {
                 column = [];
                 for (j = 0; j < 12; j++) {
@@ -215,7 +214,7 @@ var Game = function (gameString) {
                 times.push(time)
             } else {
                 error = -1;
-                return error;
+                return error
             }
         },
 
@@ -351,6 +350,7 @@ var Game = function (gameString) {
 
         getString = function () {
             return Serializer.serialize(2, startPosition, moves, times)
+            //return Serializer.serialize(2, currentPosition, moves, [])
         },
 
         // replays the game and checks every move actually can be played
@@ -366,12 +366,8 @@ var Game = function (gameString) {
                 }
             }
 
-            if (moves.length != times.length) {
-                result  = false
-            }
-
             currentPosition = [];
-            return result;
+            return result
         };
 
     //************************************
@@ -380,13 +376,12 @@ var Game = function (gameString) {
 
     if (gameString === undefined) {
         generateNewPosition();
-        status = Status.Ready;
+        status = Status.Ready
     } else {
         var gameData = Serializer.deserialize(gameString);
         startPosition = $.extend(true, [], gameData.p);
         moves = $.extend(true, [], gameData.m);
         times = $.extend(true, [], gameData.t);
-
         if (checkGameData()) {
             currentPosition = $.extend(true, [], gameData.p);
             status = Status.Over
