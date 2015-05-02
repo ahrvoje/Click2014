@@ -195,6 +195,7 @@ var Click = (function () {
                 // make sure timer shows exact time of the last move played
                 updateTimeText();
                 showButtons();
+                $(".rowDiv").css("color", "black");
             }
         },
 
@@ -344,6 +345,7 @@ var Click = (function () {
 
             if (game.getStatus() === game.Status.Ready) {
                 hideButtons();
+                $(".rowDiv").css("color", "gainsboro");
 
                 game.startGame();
                 lastClickTime = game.getStartTime();
