@@ -142,7 +142,95 @@ Serializer1 = (function () {
 Serializer2 = (function () {
     var position, moves, times;
 
-    var stringToPosition = function (positionString) {
+    var dx_encode = {
+              "0":"11",
+             "-1":"10",
+              "1":"00",
+             "-2":"0111",
+              "2":"0110",
+              "3":"01011",
+             "-3":"01001",
+             "-4":"010100",
+              "4":"0100001",
+             "-5":"0100010",
+              "5":"01010111",
+             "-6":"01000000",
+              "6":"01000001",
+             "-7":"010001111",
+              "7":"010001100",
+             "-8":"010101100",
+              "8":"010001101",
+             "-9":"010101010",
+              "9":"010001110",
+            "-10":"010101011",
+             "10":"010101001",
+            "-11":"010101000",
+             "11":"010101101"
+            },
+
+        dx_decode = swap_key_value(dx_encode),
+
+        dy_encode = {
+              "0":"11",
+             "-1":"10",
+              "1":"011",
+             "-2":"001",
+              "2":"000",
+             "-3":"01011",
+              "3":"01001",
+             "-4":"010101",
+              "4":"010000",
+             "-5":"0101000",
+              "5":"010100100",
+             "-6":"010100101",
+              "6":"010100110",
+             "-7":"010001000",
+              "7":"010001101",
+             "-8":"010001100",
+              "8":"010001011",
+             "-9":"010001010",
+              "9":"010001001",
+            "-10":"010001111",
+             "10":"010001110",
+            "-11":"0101001110",
+             "11":"0101001111"
+        },
+
+        dy_decode = swap_key_value(dy_encode),
+
+        fd_encode = {
+            "0":"1",
+            "1":"01",
+            "2":"001",
+            "3":"0001",
+            "4":"00001",
+            "5":"000001",
+            "6":"0000001",
+            "7":"00000001",
+            "8":"000000001",
+            "9":"0000000001",
+            "x":"00000000001"
+        },
+
+        fd_decode = swap_key_value(fd_encode),
+
+        sd_encode = {
+            "0":"000",
+            "1":"001",
+            "2":"010",
+            "3":"011",
+            "4":"100",
+            "5":"1010",
+            "6":"1011",
+            "7":"1100",
+            "8":"1101",
+            "9":"1110",
+            "x":"1111"
+        },
+
+        sd_decode = swap_key_value(sd_encode),
+
+        stringToPosition = function (positionString) {
             var i, column, row, x;
             var base6 = topZeros(longX_to_longY(positionString, 74, 5, 6, 12));
 
@@ -204,8 +292,8 @@ Serializer2 = (function () {
 
         stringToMoves = function (movesString) {
             var movesStrings = movesString.split(",");
-            var movesX = componentStringToMoves(movesStrings[0], dx_huffman_decode);
-            var movesY = componentStringToMoves(movesStrings[1], dy_huffman_decode);
+            var movesX = componentStringToMoves(movesStrings[0], dx_decode);
+            var movesY = componentStringToMoves(movesStrings[1], dy_decode);
 
             moves = [];
             for (var i = 0; i < movesX.length; i++) {
@@ -230,8 +318,8 @@ Serializer2 = (function () {
         },
 
         movesToString = function (moves) {
-            var stringX = movesComponentToString(moves, 0, dx_huffman_encode);
-            var stringY = movesComponentToString(moves, 1, dy_huffman_encode);
+            var stringX = movesComponentToString(moves, 0, dx_encode);
+            var stringY = movesComponentToString(moves, 1, dy_encode);
 
             return stringX + "," + stringY
         },
@@ -242,7 +330,37 @@ Serializer2 = (function () {
         },
 
         timesToString = function (times) {
+            var i, deltas, x, fx, coded;
 
+            deltas=[];
+            for (i = 1; i < times.length; i++) {
+                deltas.push(times[i] - times[i-1])
+            }
+
+            var mean = times[times.length - 1] / (times.length - 1);
+            var logs = fmap(deltas, function(x){return Math.round(10 * Math.log(x / mean) / logGoldenRatio) / 10.});
+
+            coded = "";
+            for (i = 0; i < logs.length; i++) {
+                x = logs[i];
+
+                if (x < 0) {
+                    coded += "0"
+                } else {
+                    coded += "1"
+                }
+
+                x = Math.abs(x);
+                fx = Math.floor(x);
+
+                coded += fd_encode[fx];
+                coded += sd_encode[Math.round(10 * (x - fx))];
+            }
+
+            var lz = (31 - coded.length % 31) % 31;
+
+            return topZeros(baseX_to_baseY(String(times[times.length - 1]), 10, 74)) + "," +
+                    topZeros(baseX_to_baseY(String(lz), 10, 74)) + topZeros(longX_to_longY(coded, 2, 31, 74, 5))
         },
 
         deserialize = function (positionString, movesString, timesString) {

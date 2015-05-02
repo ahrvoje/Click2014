@@ -9,14 +9,19 @@
  */
 /* jshint strict:false */
 
+logGoldenRatio = 0.481211825059603447;
+
 isString = function (s) {return typeof s == 'string' || s instanceof String};
-prependZeros = function (s, m) {while (m-- > 0) {s = "0" + s} return s};
-prependZerosMod = function (s, m) {while (s.length % m > 0) {s = "0" + s} return s};
-appendZeros = function (s, m) {while (m-- > 0) {s += "0"} return s};
-appendZerosMod = function (s, m) {while (s.length % m > 0) {s += "0"} return s};
-topZeros = function(s) {var c=0; while (c < s.length && s[c++] === "0") {} return s.substring(c-1)};
-tailZeros = function(s) {var c=s.length; while (--c >= 0 && s[c] === "0") {} return s.slice(0, c+1)};
-swap_key_value = function (d) {var t={}; for (var key in d) {t[d[key]]=key} return t};
+prependZeros = function (s, m) {while(m-- > 0){s = "0" + s} return s};
+prependZerosMod = function (s, m) {while(s.length % m > 0){s = "0" + s} return s};
+appendZeros = function (s, m) {while(m-- > 0){s += "0"} return s};
+appendZerosMod = function (s, m) {while(s.length % m > 0){s += "0"} return s};
+topZeros = function(s) {var c=0; while(c < s.length && s[c++] === "0"){} return s.substring(c-1)};
+tailZeros = function(s) {var c=s.length; while(--c >= 0 && s[c] === "0"){} return s.slice(0, c+1)};
+swap_key_value = function (d) {var t={}; for(var key in d){t[d[key]]=key} return t};
+sign = function (x) {return x ? x<0 ? -1 : 1 : 0};
+sum = function (l) {var s=0; for(var i=0; i<l.length; i++){s+=l[i]} return s};
+fmap = function (l, f) {var t=[]; for(var i=0; i<l.length; i++){t.push(f(l[i]))} return t};
 
 getQueryParams = function (qs) {
     var result = {};
@@ -88,64 +93,6 @@ longX_to_longY = function (baseX, X, m, Y, n) {
 
     return baseY
 };
-
-// dx,dy moves deltas Huffman codes generated using http://planetcalc.com/2481/
-
-dx_huffman_encode = {
-      "0":"11",
-     "-1":"10",
-      "1":"00",
-     "-2":"0111",
-      "2":"0110",
-      "3":"01011",
-     "-3":"01001",
-     "-4":"010100",
-      "4":"0100001",
-     "-5":"0100010",
-      "5":"01010111",
-     "-6":"01000000",
-      "6":"01000001",
-     "-7":"010001111",
-      "7":"010001100",
-     "-8":"010101100",
-      "8":"010001101",
-     "-9":"010101010",
-      "9":"010001110",
-    "-10":"010101011",
-     "10":"010101001",
-    "-11":"010101000",
-     "11":"010101101"
-};
-
-dx_huffman_decode = swap_key_value(dx_huffman_encode);
-
-dy_huffman_encode = {
-      "0":"11",
-     "-1":"10",
-      "1":"011",
-     "-2":"001",
-      "2":"000",
-     "-3":"01011",
-      "3":"01001",
-     "-4":"010101",
-      "4":"010000",
-     "-5":"0101000",
-      "5":"010100100",
-     "-6":"010100101",
-      "6":"010100110",
-     "-7":"010001000",
-      "7":"010001101",
-     "-8":"010001100",
-      "8":"010001011",
-     "-9":"010001010",
-      "9":"010001001",
-    "-10":"010001111",
-     "10":"010001110",
-    "-11":"0101001110",
-     "11":"0101001111"
-};
-
-dy_huffman_decode = swap_key_value(dy_huffman_encode);
 
 huffman_encode = function (array, encode_table) {
     var i, t="";
