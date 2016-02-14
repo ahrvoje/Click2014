@@ -277,11 +277,11 @@ Serializer2 = (function () {
         },
 
         componentStringToMoves = function (movesStringComponent, huffman_table) {
-            var m0 = Number(baseX_to_baseY(movesStringComponent[0], 74, 10));
-            var lz = Number(baseX_to_baseY(movesStringComponent[1], 74, 10));
-            var huffman = longX_to_longY(movesStringComponent.substring(2), 74, 5, 2, 31).substring(lz);
+            var firstMove = Number(baseX_to_baseY(movesStringComponent[0], 74, 10));
+            var leadingZeros = Number(baseX_to_baseY(movesStringComponent[1], 74, 10));
+            var huffman = longX_to_longY(movesStringComponent.substring(2), 74, 5, 2, 31).substring(leadingZeros);
             var deltas = huffman_decode(huffman, huffman_table);
-            var movesComponent = [m0];
+            var movesComponent = [firstMove];
 
             for (var i = 0; i < deltas.length; i++) {
                 movesComponent.push(movesComponent[movesComponent.length - 1] + Number(deltas[i]))
@@ -303,18 +303,18 @@ Serializer2 = (function () {
             return true
         },
 
-        movesComponentToString = function (moves, c, huffman_table) {
-            var i, deltas=[], huffman, lz, base74;
+        movesComponentToString = function (moves, component, huffman_table) {
+            var i, deltas=[], huffman, leadingZeros, base74;
 
             for (i = 1; i < moves.length; i++) {
-                deltas.push(moves[i][c] - moves[i-1][c])
+                deltas.push(moves[i][component] - moves[i-1][component])
             }
 
             huffman = huffman_encode(deltas, huffman_table);
-            lz = (31 - huffman.length % 31) % 31;
+            leadingZeros = (31 - huffman.length % 31) % 31;
             base74 = longX_to_longY(huffman, 2, 31, 74, 5);
 
-            return baseX_to_baseY(String(moves[0][c]), 10, 74) + baseX_to_baseY(String(lz), 10, 74) + topZeros(base74)
+            return baseX_to_baseY(String(moves[0][component]), 10, 74) + baseX_to_baseY(String(leadingZeros), 10, 74) + topZeros(base74)
         },
 
         movesToString = function (moves) {
@@ -330,7 +330,7 @@ Serializer2 = (function () {
         },
 
         timesToString = function (times) {
-            var i, deltas, x, fx, coded;
+            var i, deltas, x, fx, coded, leadingZeros;
 
             deltas=[];
             for (i = 1; i < times.length; i++) {
@@ -357,10 +357,10 @@ Serializer2 = (function () {
                 coded += sd_encode[Math.round(10 * (x - fx))];
             }
 
-            var lz = (31 - coded.length % 31) % 31;
+            leadingZeros = (31 - coded.length % 31) % 31;
 
             return topZeros(baseX_to_baseY(String(times[times.length - 1]), 10, 74)) + "," +
-                    topZeros(baseX_to_baseY(String(lz), 10, 74)) + topZeros(longX_to_longY(coded, 2, 31, 74, 5))
+                    topZeros(baseX_to_baseY(String(leadingZeros), 10, 74)) + topZeros(longX_to_longY(coded, 2, 31, 74, 5))
         },
 
         deserialize = function (positionString, movesString, timesString) {

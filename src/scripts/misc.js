@@ -63,35 +63,35 @@ chars_encode = {  "0":"0",  "1":"1",  "2":"2",  "3":"3",  "4":"4",  "5":"5",  "6
 
 chars_decode = swap_key_value(chars_encode);
 
-baseX_to_baseY = function (baseX, X, Y) {
-    var i, base10 = 0, baseY = "", mod;
+baseX_to_baseY = function (numberX, baseX, baseY) {
+    var i, number10 = 0, numberY = "", mod;
 
-    for (i=0; i<baseX.length; i++) {
-        base10 = X * base10 + Number(chars_decode[baseX[i]]);
+    for (i=0; i<numberX.length; i++) {
+        number10 = baseX * number10 + Number(chars_decode[numberX[i]]);
     }
 
-    if (base10 === 0) {
-        baseY = "0"
+    if (number10 === 0) {
+        numberY = "0"
     }
 
-    while (base10 > 0) {
-        mod = base10 % Y;
-        baseY = chars_encode[String(mod)] + baseY;
-        base10 = (base10 - mod) / Y
+    while (number10 > 0) {
+        mod = number10 % baseY;
+        numberY = chars_encode[String(mod)] + numberY;
+        number10 = (number10 - mod) / baseY
     }
 
-    return baseY
+    return numberY
 };
 
-longX_to_longY = function (baseX, X, m, Y, n) {
-    var i, baseY = "";
+longX_to_longY = function (numberX, baseX, sizeX, baseY, sizeY) {
+    var i, numberY = "";
 
-    baseX = prependZerosMod(baseX, m);
-    for (i = 0; i < baseX.length / m; i++) {
-        baseY += prependZerosMod(baseX_to_baseY(baseX.substring(m*i, m*i + m), X, Y), n)
+    numberX = prependZerosMod(numberX, sizeX);
+    for (i = 0; i < numberX.length / sizeX; i++) {
+        numberY += prependZerosMod(baseX_to_baseY(numberX.substring(sizeX*i, sizeX*i + sizeX), baseX, baseY), sizeY)
     }
 
-    return baseY
+    return numberY
 };
 
 huffman_encode = function (array, encode_table) {
