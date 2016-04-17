@@ -157,11 +157,13 @@ var Click = (function () {
         },
 
         showButtons = function () {
-            $(".button,.smallButtonDiv").css("display", "inherit")
+            $("#control-overlay").css("display", "none");
+            $("#control").css("-webkit-filter", "none")
         },
 
         hideButtons = function () {
-            $(".button,.smallButtonDiv").css("display", "none")
+            $("#control-overlay").css("display", "initial");
+            $("#control").css("-webkit-filter", "opacity(0.2)")
         },
 
         prepareInterface = function () {
@@ -195,7 +197,6 @@ var Click = (function () {
                 // make sure timer shows exact time of the last move played
                 updateTimeText();
                 showButtons();
-                $(".rowDiv").css("color", "black");
             }
         },
 
@@ -241,7 +242,7 @@ var Click = (function () {
             }
         },
 
-        displayWarning = function(message) {
+        displayWarning = function (message) {
             $("#gameExamples").remove();
             $("#game").remove();
             $("#footer").remove();
@@ -345,8 +346,6 @@ var Click = (function () {
 
             if (game.getStatus() === game.Status.Ready) {
                 hideButtons();
-                $(".rowDiv").css("color", "gainsboro");
-
                 game.startGame();
                 lastClickTime = game.getStartTime();
 

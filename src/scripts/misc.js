@@ -9,17 +9,16 @@
  */
 /* jshint strict:false */
 
-logGoldenRatio = 0.481211825059603447;
-
 isString = function (s) {return typeof s == 'string' || s instanceof String};
-prependZeros = function (s, m) {while(m-- > 0){s = "0" + s} return s};
-prependZerosMod = function (s, m) {while(s.length % m > 0){s = "0" + s} return s};
+padZeros = function (s, m) {while(m-- > 0){s = "0" + s} return s};
+padZerosMod = function (s, m) {while(s.length % m > 0){s = "0" + s} return s};
 appendZeros = function (s, m) {while(m-- > 0){s += "0"} return s};
 appendZerosMod = function (s, m) {while(s.length % m > 0){s += "0"} return s};
-topZeros = function(s) {var c=0; while(c < s.length && s[c++] === "0"){} return s.substring(c-1)};
-tailZeros = function(s) {var c=s.length; while(--c >= 0 && s[c] === "0"){} return s.slice(0, c+1)};
+topZeros = function (s) {var c=0; while(c < s.length && s[c++] === "0"){} return s.substring(c-1)};
+tailZeros = function (s) {var c=s.length; while(--c >= 0 && s[c] === "0"){} return s.slice(0, c+1)};
 swap_key_value = function (d) {var t={}; for(var key in d){t[d[key]]=key} return t};
-sign = function (x) {return x ? x<0 ? -1 : 1 : 0};
+sign = function (x) {return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;};
+sqr = function (x) {return x * x};
 sum = function (l) {var s=0; for(var i=0; i<l.length; i++){s+=l[i]} return s};
 fmap = function (l, f) {var t=[]; for(var i=0; i<l.length; i++){t.push(f(l[i]))} return t};
 
@@ -58,8 +57,8 @@ chars_encode = {  "0":"0",  "1":"1",  "2":"2",  "3":"3",  "4":"4",  "5":"5",  "6
                  "30":"u", "31":"v", "32":"w", "33":"x", "34":"y", "35":"z", "36":"A", "37":"B", "38":"C", "39":"D",
                  "40":"E", "41":"F", "42":"G", "43":"H", "44":"I", "45":"J", "46":"K", "47":"L", "48":"M", "49":"N",
                  "50":"O", "51":"P", "52":"Q", "53":"R", "54":"S", "55":"T", "56":"U", "57":"V", "58":"W", "59":"X",
-                 "60":"Y", "61":"Z", "62":"#", "63":"$", "64":"(", "65":")", "66":"*", "67":"+", "68":"-", "69":"/",
-                 "70":"@", "71":"[", "72":"]", "73":"_"};
+                 "60":"Y", "61":"Z", "62":"$", "63":"-", "64":"_", "65":".", "66":"+", "67":"!", "68":"*", "69":"(",
+                 "70":")"};
 
 chars_decode = swap_key_value(chars_encode);
 
@@ -86,9 +85,9 @@ baseX_to_baseY = function (numberX, baseX, baseY) {
 longX_to_longY = function (numberX, baseX, sizeX, baseY, sizeY) {
     var i, numberY = "";
 
-    numberX = prependZerosMod(numberX, sizeX);
+    numberX = padZerosMod(numberX, sizeX);
     for (i = 0; i < numberX.length / sizeX; i++) {
-        numberY += prependZerosMod(baseX_to_baseY(numberX.substring(sizeX*i, sizeX*i + sizeX), baseX, baseY), sizeY)
+        numberY += padZerosMod(baseX_to_baseY(numberX.substring(sizeX*i, sizeX*i + sizeX), baseX, baseY), sizeY)
     }
 
     return numberY

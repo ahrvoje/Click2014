@@ -16,42 +16,40 @@ $(document).ready(function () {
 
     $(".icon").hover(
         function () {
-            var par = $(this).parent();
-            par.find(".on").hide();
-            par.find(".off").show();
+            var p = $(this).parent();
+            p.find(".on").hide();
+            p.find(".off").show();
         },
         function () {
-            var par = $(this).parent();
-            par.find(".on").show();
-            par.find(".off").hide();
+            var p = $(this).parent();
+            p.find(".on").show();
+            p.find(".off").hide();
         }
     );
-
-    // events
-    // ***************
 
     $("#gameCanvas")
         // disable mouse wheel page scroll while over the canvas
         .hover(
-        function () {$("body").css("overflow-y", "hidden");},
-        function () {$("body").css("overflow-y", "auto");}
+        function () {$("body").css("overflow-y", "hidden")},
+        function () {$("body").css("overflow-y", "auto")}
     )
-        .mousedown(function(event){Click.onCanvasClick(event);}
+        .mousedown(function (event) {Click.onCanvasClick(event)}
     );
 
-    $("#startButton").click(function(){Click.startNewGame();});
-    $(".backward").click(function(){Click.rewindBackward();});
-    $(".autoPlay").click(function(){Click.autoPlay();});
-    $(".forward").click(function(){Click.rewindForward();});
-    $(".import").click(function(){Click.importGame(window.prompt("Paste game link below"));});
-    $(".link").click(function(){Click.promptGameLink();});
-    $(".replay").click(function(){Click.replayStartPosition();});
+    $("#startButton").click(Click.startNewGame);
+    $(".backward").click(Click.rewindBackward);
+    $(".autoPlay").click(Click.autoPlay);
+    $(".forward").click(Click.rewindForward);
+    $(".import").click(function () {Click.importGame(window.prompt("Paste game link below"))});
+    $(".link").click(Click.promptGameLink);
+    $(".replay").click(Click.replayStartPosition);
 
-    $("#example0").click(function(){Click.loadExample(0); setTimeout(function(){Click.stopAutoPlay(); Click.autoPlay();}, 1000);});
-    $("#example1").click(function(){Click.loadExample(1); setTimeout(function(){Click.stopAutoPlay(); Click.autoPlay();}, 1000);});
-    $("#example2").click(function(){Click.loadExample(2); setTimeout(function(){Click.stopAutoPlay(); Click.autoPlay();}, 1000);});
+    $("#example0").click(function () {Click.loadExample(0); setTimeout(function () {Click.stopAutoPlay(); Click.autoPlay();}, 1000)});
+    $("#example1").click(function () {Click.loadExample(1); setTimeout(function () {Click.stopAutoPlay(); Click.autoPlay();}, 1000)});
+    $("#example2").click(function () {Click.loadExample(2); setTimeout(function () {Click.stopAutoPlay(); Click.autoPlay();}, 1000)});
+    $("#runTests").click(function () {Tests().run()});
 
-    $("#mail").click(function(){window.prompt("Contact mail:", "ahrvoje@gmail.com");});
+    $("#mail").click(function () {window.prompt("Contact mail:", "ahrvoje@gmail.com")});
 
     // initialize Click object
     Click.init();

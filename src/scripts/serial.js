@@ -8,6 +8,7 @@
  * Date: Thu Apr 23, 2015
  */
 
+
 Serializer1 = (function () {
     var position, moves, times;
 
@@ -139,6 +140,7 @@ Serializer1 = (function () {
     }
 } () );
 
+
 Serializer2 = (function () {
     var position, moves, times;
 
@@ -198,12 +200,12 @@ Serializer2 = (function () {
 
         dy_decode = swap_key_value(dy_encode),
 
-        fd_encode = {
-            "0":"1",
-            "1":"01",
-            "2":"001",
-            "3":"0001",
-            "4":"00001",
+        first_digit_encode = {
+            "3":"1",
+            "2":"01",
+            "4":"001",
+            "1":"0001",
+            "0":"00001",
             "5":"000001",
             "6":"0000001",
             "7":"00000001",
@@ -212,9 +214,9 @@ Serializer2 = (function () {
             "x":"00000000001"
         },
 
-        fd_decode = swap_key_value(fd_encode),
+        first_digit_decode = swap_key_value(first_digit_encode),
 
-        sd_encode = {
+        second_digit_encode = {
             "0":"000",
             "1":"001",
             "2":"010",
@@ -228,11 +230,28 @@ Serializer2 = (function () {
             "x":"1111"
         },
 
-        sd_decode = swap_key_value(sd_encode),
+        second_digit_decode = swap_key_value(second_digit_encode),
 
-        stringToPosition = function (positionString) {
+        serializePosition = function (position) {
+            var i, j, p0;
+
+            p0 = "";
+            for (i = 0; i < 12 && position[i][0] !== 0; i++) {
+                for (j = 0; j < 12; j++) {
+                    p0 += String(position[i][j]);
+
+                    if (position[i][j] === 0) {
+                        break
+                    }
+                }
+            }
+
+            return topZeros(longX_to_longY(tailZeros(p0), 6, 19, 71, 8))
+        },
+
+        _deserializePosition = function (positionString) {
             var i, column, row, x;
-            var base6 = topZeros(longX_to_longY(positionString, 74, 5, 6, 12));
+            var base6 = topZeros(longX_to_longY(positionString, 71, 8, 6, 19));
 
             position = [];
             for (i = 0; i < 12; i++) {
@@ -259,27 +278,31 @@ Serializer2 = (function () {
             return true
         },
 
-        positionToString = function (position) {
-            var i, j, p0;
+        deserializePosition = function (positionString) {
+            if (_deserializePosition(positionString)) {
+                return position
+            }
+            return []
+        },
 
-            p0 = "";
-            for (i = 0; i < 12 && position[i][0] !== 0; i++) {
-                for (j = 0; j < 12; j++) {
-                    p0 += String(position[i][j]);
+        movesComponentToString = function (moves, component, huffman_table) {
+            var i, deltas=[], huffman, leadingZeros, base71;
 
-                    if (position[i][j] === 0) {
-                        break
-                    }
-                }
+            for (i = 1; i < moves.length; i++) {
+                deltas.push(moves[i][component] - moves[i-1][component])
             }
 
-            return topZeros(longX_to_longY(tailZeros(p0), 6, 12, 74, 5))
+            huffman = huffman_encode(deltas, huffman_table);
+            leadingZeros = huffman.indexOf('1');
+            base71 = longX_to_longY(huffman, 2, 43, 71, 7);
+
+            return baseX_to_baseY(String(moves[0][component]), 10, 71) + baseX_to_baseY(String(leadingZeros), 10, 71) + topZeros(base71)
         },
 
         componentStringToMoves = function (movesStringComponent, huffman_table) {
-            var firstMove = Number(baseX_to_baseY(movesStringComponent[0], 74, 10));
-            var leadingZeros = Number(baseX_to_baseY(movesStringComponent[1], 74, 10));
-            var huffman = longX_to_longY(movesStringComponent.substring(2), 74, 5, 2, 31).substring(leadingZeros);
+            var firstMove = Number(baseX_to_baseY(movesStringComponent[0], 71, 10));
+            var leadingZeros = Number(baseX_to_baseY(movesStringComponent[1], 71, 10));
+            var huffman = padZeros(topZeros(longX_to_longY(movesStringComponent.substring(2), 71, 7, 2, 43)), leadingZeros);
             var deltas = huffman_decode(huffman, huffman_table);
             var movesComponent = [firstMove];
 
@@ -290,7 +313,18 @@ Serializer2 = (function () {
             return movesComponent
         },
 
-        stringToMoves = function (movesString) {
+        serializeMoves = function (moves) {
+            var stringX = movesComponentToString(moves, 0, dx_encode);
+            var stringY = movesComponentToString(moves, 1, dy_encode);
+
+            return stringX + "," + stringY
+        },
+
+        _deserializeMoves = function (movesString) {
+            if (movesString === undefined) {
+                return false
+            }
+
             var movesStrings = movesString.split(",");
             var movesX = componentStringToMoves(movesStrings[0], dx_decode);
             var movesY = componentStringToMoves(movesStrings[1], dy_decode);
@@ -303,93 +337,120 @@ Serializer2 = (function () {
             return true
         },
 
-        movesComponentToString = function (moves, component, huffman_table) {
-            var i, deltas=[], huffman, leadingZeros, base74;
-
-            for (i = 1; i < moves.length; i++) {
-                deltas.push(moves[i][component] - moves[i-1][component])
+        deserializeMoves = function (movesString) {
+            if (_deserializeMoves(movesString)) {
+                return moves
             }
-
-            huffman = huffman_encode(deltas, huffman_table);
-            leadingZeros = (31 - huffman.length % 31) % 31;
-            base74 = longX_to_longY(huffman, 2, 31, 74, 5);
-
-            return baseX_to_baseY(String(moves[0][component]), 10, 74) + baseX_to_baseY(String(leadingZeros), 10, 74) + topZeros(base74)
+            return []
         },
 
-        movesToString = function (moves) {
-            var stringX = movesComponentToString(moves, 0, dx_encode);
-            var stringY = movesComponentToString(moves, 1, dy_encode);
-
-            return stringX + "," + stringY
-        },
-
-        stringToTimes = function (timesString) {
-            times = [];
-            return true
-        },
-
-        timesToString = function (times) {
-            var i, deltas, x, fx, coded, leadingZeros;
-
-            deltas=[];
+        serializeTimes = function (times) {
+            var deltas=[];
             for (i = 1; i < times.length; i++) {
                 deltas.push(times[i] - times[i-1])
             }
 
-            var mean = times[times.length - 1] / (times.length - 1);
-            var logs = fmap(deltas, function(x){return Math.round(10 * Math.log(x / mean) / logGoldenRatio) / 10.});
+            var logs = fmap(deltas, function (x) {return Math.round(25 * Math.sqrt(Math.max(0, Math.log(0.01 * x))))});
 
-            coded = "";
-            for (i = 0; i < logs.length; i++) {
-                x = logs[i];
-
-                if (x < 0) {
-                    coded += "0"
-                } else {
-                    coded += "1"
-                }
-
-                x = Math.abs(x);
-                fx = Math.floor(x);
-
-                coded += fd_encode[fx];
-                coded += sd_encode[Math.round(10 * (x - fx))];
+            var coded = "", first_digit, second_digit;
+            for (var i = 0; i < logs.length; i++) {
+                second_digit = logs[i] % 10;
+                first_digit = (logs[i] - second_digit) / 10;
+                coded += first_digit_encode[first_digit];
+                coded += second_digit_encode[second_digit];
             }
 
-            leadingZeros = (31 - coded.length % 31) % 31;
-
-            return topZeros(baseX_to_baseY(String(times[times.length - 1]), 10, 74)) + "," +
-                    topZeros(baseX_to_baseY(String(leadingZeros), 10, 74)) + topZeros(longX_to_longY(coded, 2, 31, 74, 5))
+            return topZeros(baseX_to_baseY(String(times[times.length - 1]), 10, 71)) + "," +
+                topZeros(baseX_to_baseY(String(coded.indexOf('1')), 10, 71)) +
+                topZeros(longX_to_longY(coded, 2, 43, 71, 7))
         },
 
-        deserialize = function (positionString, movesString, timesString) {
-            if (!stringToPosition(positionString)) {
+        _deserializeTimes = function (timesString) {
+            if (timesString === undefined) {
+                return false
+            }
+
+            var splits = timesString.split(",");
+            var time_base71 = splits[0], coded = splits[1];
+            var total_time = Number(baseX_to_baseY(time_base71, 71, 10));
+            var leadingZeros = Number(baseX_to_baseY(coded[0], 71, 10));
+
+            coded = padZeros(topZeros(longX_to_longY(coded.substring(1), 71, 7, 2, 43)), leadingZeros);
+
+            var i, j, first_digit, second_digit, logs = [];
+            for (i = 0; i < coded.length;) {
+                for (j=1; j < 11; j++) {
+                    first_digit = first_digit_decode[coded.substring(i, i + j)];
+                    if (first_digit !== undefined) {break}
+                }
+                i += j;
+
+                for (j=3; j < 5; j++) {
+                    second_digit = second_digit_decode[coded.substring(i, i + j)];
+                    if (second_digit !== undefined) {break}
+                }
+                i += j;
+
+                logs.push(Number(first_digit + second_digit));
+            }
+
+            var deltas = fmap(logs, function (x) {return Math.round(100 * Math.exp(sqr(0.04 * x)))});
+
+            // triple total time difference compensation
+            // time encoding is lossy, but total time has to be correct
+            var decoded_total_time;
+            for (var compensation = 0; compensation < 3; compensation++) {
+                decoded_total_time = sum(deltas);
+                deltas = fmap(deltas, function (x) {
+                    return Math.round(x * total_time / decoded_total_time)
+                });
+            }
+
+            times = [0];
+            for (i = 0; i < deltas.length; i++) {
+                times.push(times[i] + deltas[i])
+            }
+            // final total time correction should be zero or very small (single digit)
+            // coded and decoded total time will now be exactly the same
+            times[times.length - 1] = total_time;
+
+            return true
+        },
+
+        deserializeTimes = function (timesString) {
+            if (_deserializeTimes(timesString)) {
+                return times
+            }
+            return []
+        },
+
+        deserializeGame = function (positionString, movesString, timesString) {
+            if (!_deserializePosition(positionString)) {
                 return {p:[], m:[], t:[]}
             }
 
-            if (!stringToMoves(movesString)) {
+            if (!_deserializeMoves(movesString)) {
                 return {p:position, m:[], t:[]}
             }
 
-            if (!stringToTimes(timesString)) {
+            if (!_deserializeTimes(timesString)) {
                 return {p:position, m:moves, t:[]}
             }
 
             return {p:position, m:moves, t:times}
         },
 
-        serialize = function (_position, _moves, _times) {
+        serializeGame = function (_position, _moves, _times) {
             var string="v=2";
 
-            string += "&p=" + positionToString(_position);
+            string += "&p=" + serializePosition(_position);
 
             if (_moves.length > 0) {
-                string += "&m=" + movesToString(_moves)
+                string += "&m=" + serializeMoves(_moves)
             }
 
             if (_times.length > 0) {
-                string += "&t=" + timesToString(_times)
+                string += "&t=" + serializeTimes(_times)
             }
 
             return string
@@ -397,39 +458,106 @@ Serializer2 = (function () {
 
     // Serializer2 API
     return {
-        serialize: serialize,
-        deserialize: deserialize
+        serializePosition: serializePosition,
+        deserializePosition: deserializePosition,
+        serializeMoves: serializeMoves,
+        deserializeMoves: deserializeMoves,
+        serializeTimes: serializeTimes,
+        deserializeTimes: deserializeTimes,
+        serializeGame: serializeGame,
+        deserializeGame: deserializeGame
     }
 } () );
 
+
 Serializer = (function () {
-    var serialize = function (version, position, moves, times) {
+    var serializePosition = function (version, position) {
+            // determine the serialization version and act accordingly
+            if (version === 2) {
+                return Serializer2.serializePosition(position)
+            } else {
+                window.alert("Error: Unknown serialization version")
+            }
+        },
+
+        deserializePosition = function (version, serial) {
+            // determine the serialization version and act accordingly
+            if (version === 2) {
+                return Serializer2.deserializePosition(serial)
+            } else {
+                window.alert("Error: Unknown serialization version")
+            }
+        },
+
+        serializeMoves = function (version, moves) {
+            // determine the serialization version and act accordingly
+            if (version === 2) {
+                return Serializer2.serializeMoves(moves)
+            } else {
+                window.alert("Error: Unknown serialization version")
+            }
+        },
+
+        deserializeMoves = function (version, serial) {
+            // determine the serialization version and act accordingly
+            if (version === 2) {
+                return Serializer2.deserializeMoves(serial)
+            } else {
+                window.alert("Error: Unknown serialization version")
+            }
+        },
+
+        serializeTimes = function (version, times) {
+            // determine the serialization version and act accordingly
+            if (version === 2) {
+                return Serializer2.serializeTimes(times)
+            } else {
+                window.alert("Error: Unknown serialization version")
+            }
+        },
+
+        deserializeTimes = function (version, serial) {
+            // determine the serialization version and act accordingly
+            if (version === 2) {
+                return Serializer2.deserializeTimes(serial)
+            } else {
+                window.alert("Error: Unknown serialization version")
+            }
+        },
+
+        serializeGame = function (version, position, moves, times) {
             // determine the serialization version and act accordingly
             if (version === 1) {
                 return Serializer1.serialize(position, moves, times)
             } else if (version === 2) {
-                return Serializer2.serialize(position, moves, times)
+                return Serializer2.serializeGame(position, moves, times)
             } else {
-                window.alert("Unknown serialization version!!!")
+                window.alert("Error: Unknown serialization version")
             }
         },
 
-        deserialize = function (gameString) {
+        deserializeGame = function (gameString) {
             var gameParams = getQueryParams(gameString);
 
             // determine the serialization version and act accordingly
             if (gameParams.v === undefined) {
                 return Serializer1.deserialize(gameParams.position, gameParams.moves, gameParams.times)
             } else if (gameParams.v === "2") {
-                return Serializer2.deserialize(gameParams.p, gameParams.m, gameParams.t)
+                return Serializer2.deserializeGame(gameParams.p, gameParams.m, gameParams.t)
             } else {
-                window.alert("Unknown serialization version!")
+                window.alert("Error: Unknown serialization version")
             }
         };
 
     // Serializer API
     return {
-        serialize: serialize,
-        deserialize: deserialize
-    }
+        serializePosition: serializePosition,
+        deserializePosition: deserializePosition,
+        serializeMoves: serializeMoves,
+        deserializeMoves: deserializeMoves,
+        serializeTimes: serializeTimes,
+        deserializeTimes: deserializeTimes,
+        serializeGame: serializeGame,
+        deserializeGame: deserializeGame
+}
 } () );

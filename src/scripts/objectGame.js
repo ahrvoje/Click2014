@@ -349,8 +349,7 @@ var Game = function (gameString) {
         },
 
         getString = function () {
-            return Serializer.serialize(2, startPosition, moves, times)
-            //return Serializer.serialize(2, currentPosition, moves, [])
+            return Serializer.serializeGame(2, startPosition, moves, times)
         },
 
         // replays the game and checks every move actually can be played
@@ -378,10 +377,12 @@ var Game = function (gameString) {
         generateNewPosition();
         status = Status.Ready
     } else {
-        var gameData = Serializer.deserialize(gameString);
+        var gameData = Serializer.deserializeGame(gameString);
+
         startPosition = $.extend(true, [], gameData.p);
         moves = $.extend(true, [], gameData.m);
         times = $.extend(true, [], gameData.t);
+
         if (checkGameData()) {
             currentPosition = $.extend(true, [], gameData.p);
             status = Status.Over
@@ -400,13 +401,13 @@ var Game = function (gameString) {
     // Game API methods and const. variables
     return {
         Status: Status,
-        getStatus: function (){return status},
+        getStatus: function () {return status},
         setStatus: function (_status){status = _status},
         getMoves: function () {return moves},
         getTimes: function () {return times},
         getStartPosition: function () {return startPosition},
         getCurrentPosition: function () {return currentPosition},
-        getCurrentMove: function() {return currentMove},
+        getCurrentMove: function () {return currentMove},
         getStartTime: function () {return startTime},
         getError: function () {return error},
         startGame: startGame,

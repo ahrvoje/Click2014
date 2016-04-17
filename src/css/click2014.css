@@ -29,7 +29,6 @@ body {
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
@@ -44,7 +43,6 @@ body:hover {
     min-height: 100%;
     font-size: 15px;
     display: -webkit-flex;
-    display: -ms-flex;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -52,7 +50,6 @@ body:hover {
 
 #mainTop {
     display: -webkit-flex;
-    display: -ms-flex;
     display: flex;
 }
 
@@ -77,7 +74,6 @@ body:hover {
     align-self: flex-end;
 
     display: -webkit-flex;
-    display: -ms-flex;
     display: flex;
     align-items: flex-end;
     padding-bottom: 5px;
@@ -98,7 +94,6 @@ body:hover {
     flex: 10;
 
     display: -webkit-flex;
-    display: -ms-flex;
     display: flex;
     align-items: flex-end;
 
@@ -124,7 +119,6 @@ body:hover {
     min-width: 150px;
 
     -webkit-user-select: text;
-    -khtml-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
@@ -154,11 +148,11 @@ body:hover {
 }
 
 #mainLeft {
-    min-width: 290px;
+    min-width: 300px;
 }
 
 #gameExamples {
-    width: 95px;
+    width: 110px;
     font-size: 18px;
     margin-left: 180px;
     margin-top: 100px;
@@ -169,7 +163,7 @@ body:hover {
 .example {
     margin-top: 5px;
     margin-bottom: 5px;
-    width: 95px;
+    width: 105px;
 }
 
 .example:hover {
@@ -182,6 +176,15 @@ body:hover {
     font-size: 30px;
     text-align: center;
     display: inherit;
+}
+
+#control-overlay {
+    display: none;
+    position: fixed;
+    width: 310px;
+    height: 100px;
+    z-index: 99;
+    background-color: rgba(19, 121, 202, 0);
 }
 
 #gameCanvas {
@@ -209,7 +212,6 @@ body:hover {
     font-size: 14px;
     font-weight: bold;
     display: -webkit-flex;
-    display: -ms-flex;
     display: flex;
 }
 
@@ -302,4 +304,105 @@ body:hover {
 
 #autoPauseButton {
     display: none;
+}
+
+#modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 98;
+    background-color: peru;
+    opacity: 0.9;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+}
+
+#testsDialog {
+    width: 505px;
+    height: 300px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    z-index: 99;
+    color: oldlace;
+    background-color: oldlace;
+    border-radius: 5px;
+    display: none;
+}
+
+.dialogTitle {
+    width: 100%;
+    box-sizing: border-box;
+    height: 34px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 99;
+    padding-left: 10px;
+    padding-top: 9px;
+    padding-bottom: 5px;
+    background-color: darkblue;
+    border-radius: 0 0 5px 5px;
+}
+
+.dialogStop {
+    position: absolute;
+    width: 100px;
+    margin-left: -50px;
+    left: 50%;
+    height: 20px;
+    bottom: 0;
+    text-align: center;
+    padding-top: 9px;
+    padding-bottom: 5px;
+    background-color: darkred;
+    border-radius: 5px 5px 0 0;
+}
+
+.dialogStop:hover {
+    background-color: red;
+}
+
+.progressBar {
+    position: absolute;
+    width: 450px;
+    margin-left: -225px;
+    left: 50%;
+    height: 25px;
+    margin-top: 20px;
+    padding-top: 10px;
+    border: 1px black solid;
+    color: black;
+    text-align: center;
+}
+
+.progressShow, .progressCount {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: inherit;
+    padding-top: inherit;
+}
+
+.progressCount {
+    width: 100%;
+    color: black;
+    text-align: center;
+}
+
+.progressShow {
+    width: 0;
+    background-color: aqua;
+    z-index: -1;
+}
+
+#progressReport {
+    height: 120px;
+    margin: 80px 20px 0 20px;
+    background-color: papayawhip;
+    color: black;
+    text-align: left;
 }
