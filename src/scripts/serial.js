@@ -379,13 +379,13 @@ Serializer2 = (function () {
 
             var i, j, first_digit, second_digit, logs = [];
             for (i = 0; i < coded.length;) {
-                for (j=1; j < 11; j++) {
+                for (j = 1; j < 12; j++) {
                     first_digit = first_digit_decode[coded.substring(i, i + j)];
                     if (first_digit !== undefined) {break}
                 }
                 i += j;
 
-                for (j=3; j < 5; j++) {
+                for (j = 3; j < 5; j++) {
                     second_digit = second_digit_decode[coded.substring(i, i + j)];
                     if (second_digit !== undefined) {break}
                 }
@@ -559,5 +559,5 @@ Serializer = (function () {
         deserializeTimes: deserializeTimes,
         serializeGame: serializeGame,
         deserializeGame: deserializeGame
-}
+    }
 } () );

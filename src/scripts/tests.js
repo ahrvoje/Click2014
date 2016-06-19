@@ -9,13 +9,14 @@
  */
 
 Tests = (function () {
-    var testIndex = 0, testIter = 0, testInitialized = -1, testOver = false, testsStopped = false, report = $("#progressReport"),
+    var testIndex = 0, testIter = 0, testInitialized = -1, testOver = false, testsStopped = false,
+        report = $("#progressReport"), defaultCount = 10000, defaultGroupSize = 1,
 
         tests = [{
             name: 'Game serialization',
-            count: 10000,
-            groupSize: 100,
-            prologText: 'Game 1,000,000 (de)serializations running...\n',
+            count: defaultCount,
+            groupSize: defaultGroupSize,
+            prologText: 'Game 10,000 (de)serializations running...\n',
             epilogText: 'Test finished.\n',
             blocking: false,
             exec: function () {
@@ -36,9 +37,9 @@ Tests = (function () {
                 return true
             }}, {
             name: 'Position serialization',
-            count: 10000,
-            groupSize: 100,
-            prologText: 'Position 1,000,000 (de)serializations running...\n',
+            count: defaultCount,
+            groupSize: defaultGroupSize,
+            prologText: 'Position 10,000 (de)serializations running...\n',
             epilogText: 'Test finished.\n',
             blocking: true,
             exec: function () {
@@ -79,34 +80,89 @@ Tests = (function () {
                 }
                 return true
             }}, {
-                name: 'Moves serialization',
-                count: 10000,
-                groupSize: 100,
-                prologText: 'Moves 1,000,000 (de)serializations running...\n',
-                epilogText: 'Test finished.\n',
-                blocking: true,
-                exec: function () {
-                    var moves = [], moves2,
+            name: 'Moves serialization',
+            count: defaultCount,
+            groupSize: defaultGroupSize,
+            prologText: 'Moves 10,000 (de)serializations running...\n',
+            epilogText: 'Test finished.\n',
+            blocking: true,
+            exec: function () {
+                var random11, moves = [], moves2;
 
-                    random11 = function () {
-                        return Math.floor(Math.random() * 12)
-                    };
+                random11 = function () {
+                    return Math.floor(Math.random() * 12)
+                };
 
-                    for (var i = 0; i<45; i++) {
-                        moves.push([random11(), random11()])
+                for (var i = 0; i < 45; i++) {
+                    moves.push([random11(), random11()])
+                }
+
+                moves2 = Serializer.deserializeMoves(2, Serializer.serializeMoves(2, moves));
+                if (JSON.stringify(moves) != JSON.stringify(moves2)) {
+                    log(JSON.stringify(
+                            ['Test failed: Moves (de)serialization',
+                                ['moves', moves],
+                                ['moves2', moves2]
+                            ]) + "\n");
+                    return false
+                }
+                return true
+            }}, {
+            name: 'Times serialization',
+            count: defaultCount,
+            groupSize: defaultGroupSize,
+            prologText: 'Times 10,000 (de)serializations running...\n',
+            epilogText: 'Test finished.\n',
+            blocking: true,
+            exec: function () {
+                var randomDelta, n, i, deltas, times, times2, deltas2, result;
+
+                randomDelta = function () {
+                    return 20 + Math.floor(5000 * Math.random())
+                };
+
+                n = 30 + Math.floor(30 * Math.random());
+
+                deltas = [];
+                for (i = 0; i < n; i++) {
+                    deltas.push(randomDelta())
+                }
+
+                times = [0];
+                for (i = 0; i < n; i++) {
+                    times.push(times[i] + deltas[i])
+                }
+
+                times2 = Serializer.deserializeTimes(2, Serializer.serializeTimes(2, times));
+
+                deltas2=[];
+                for (i = 1; i < times2.length; i++) {
+                    deltas2.push(times2[i] - times2[i - 1])
+                }
+
+                result = true;
+                for (i = 0; i < n - 2; i++) {
+                    if (isNaN(deltas2[i]) || isNaN(deltas2[i + 1]) ||
+                        (deltas[i + 1] < deltas[i] && deltas2[i + 1] > deltas2[i]) ||
+                        (deltas[i + 1] > deltas[i] && deltas2[i + 1] < deltas2[i])) {
+                        result = false;
+                        break;
                     }
+                }
 
-                    moves2 = Serializer.deserializeMoves(2, Serializer.serializeMoves(2, moves));
-                    if (JSON.stringify(moves) != JSON.stringify(moves2)) {
-                        log(JSON.stringify(
-                                ['Test failed: Moves (de)serialization',
-                                    ['moves', moves],
-                                    ['moves2', moves2]
-                                ]) + "\n");
-                        return false
-                    }
-                    return true
-                }}
+                if (!result) {
+                    log(JSON.stringify(
+                            ['Test failed: Times (de)serialization',
+                                ['deltas', deltas],
+                                ['deltas2', deltas2],
+                                ['i', i],
+                                ['deltas[i]', deltas[i]],
+                                ['deltas[i + 1]', deltas[i + 1]]
+                            ]) + "\n");
+                    return result
+                }
+                return result
+            }}
         ],
 
         stopTest = function () {
