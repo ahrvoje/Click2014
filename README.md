@@ -6,8 +6,8 @@ A simple clicking puzzle game implemented in HTML5 during one summer afternoon. 
 The rules are simple. Just keep clicking same-colored groups until you have no choices & moves left. The ultimate goal is to clean up the board. Good luck!
 
 Until further notice, the game is available at:   
-https://dl.dropboxusercontent.com/u/22729464/Click2014/index.html
+https://cdn.rawgit.com/ahrvoje/Click2014/master/src/index.html
 
 <p align="center">
-  <img src="https://github.com/ahrvoje/Click2014/blob/master/resources/Click2014_Example.png?raw=true" alt="Click2014 example"/>
+  <img src="https://github.com/ahrvoje/Click2014/blob/master/resources/Click2014_Example_v2.png?raw=true" alt="Click2014 example"/>
 </p>
